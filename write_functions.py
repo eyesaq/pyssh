@@ -3,19 +3,6 @@ import json
 
 # utility functions for the SSH GUI application
 
-# creates a batch file to ssh into the device
-def write(ip, user, name):
-    path = os.path.join("Devices", f"{name}.bat")
-    with open(path, "w") as f:
-        f.write(f"ssh {user}@{ip}")
-    print(f"Batch file {path} created with content: ssh {user}@{ip}")
-
-# opens the batch file to ssh into the device
-
-def startssh(name):
-    path = os.path.join("Devices", f"{name}.bat")
-    os.startfile(path)
-
 # writes device info to devices.json
 def write_name_json(data, filename="devices.json"):
     with open(filename, "w") as f:

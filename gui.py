@@ -4,7 +4,6 @@ from ipaddress import ip_address
 import os
 import tkinter as tk
 import json
-from write_functions import write as write_batch
 from write_functions import write_name_json
 from write_functions import write_ip_json 
 from write_functions import write_username_json
@@ -13,7 +12,7 @@ from ssh_functions import ssh
 from ssh_functions import reboot
 from ssh_functions import shutdown
 import customtkinter as ctk
-from PIL import Image, ImageTk 
+#from PIL import Image, ImageTk 
 import threading
 
 #the pain starts here
@@ -47,10 +46,6 @@ def create_device_button(device):
         new_label.pack(pady=5)
         new_label.place(relx=0.05, rely=0.13, anchor=tk.W)
 
-        new_button = ctk.CTkButton(new_label_frame, width=15, height=15, image=icon, text="", fg_color="white",corner_radius=4, hover_color="gainsboro", command=lambda username=username_name, ip_address=ip_address_name: threading.Thread(target=lambda: ssh(username, ip_address)).start())
-        new_button.pack(pady=5)
-        new_button.place(relx=0.04, rely=0.6, anchor=tk.W)
-
         offline_label = ctk.CTkLabel(new_label_frame, text="● Offline", font=("Arial", 10), fg_color="transparent", bg_color="transparent", text_color="red")
         offline_label.pack(pady=5)
         offline_label.place(relx=0.85, rely=0.229, anchor=tk.W)
@@ -76,10 +71,6 @@ def create_device_button(device):
         new_label = ctk.CTkLabel(new_label_frame, text=key, font=("Arial", 10, "bold"), fg_color="transparent", bg_color="transparent", text_color="white")
         new_label.pack(pady=5)
         new_label.place(relx=0.05, rely=0.13, anchor=tk.W)
-
-        new_button = ctk.CTkButton(new_label_frame, width=15, height=15, image=icon, text="", fg_color="white",corner_radius=4, hover_color="gainsboro", command=lambda username=username_name, ip_address=ip_address_name: threading.Thread(target=lambda: ssh(username, ip_address)).start())
-        #new_button.pack(pady=5)
-        #new_button.place(relx=0.04, rely=0.6, anchor=tk.W)
 
         #menu for ssh controls
         menu = tk.Menubutton(new_label_frame, text="⋯", font=("Arial", 25), bg="gray21",fg="white" ,activebackground="gray21", activeforeground="gray", relief="flat", bd=0, highlightthickness=0, highlightbackground="gray21", highlightcolor="gray21")
@@ -181,21 +172,31 @@ def create_device_button(device):
         print(f"edit: {usernames}")
         
         if usernames_key not in usernames:
-            print(f"{usernames_key} removed from usernames")
+            print(f"{usernames_key} removed from usernames.json")
         else:
             print(f"Failed to remove {usernames_key} from usernames.json")
 
         with open("usernames.json", "w") as f:
            json.dump({"usernames": usernames}, f, indent=4)
 
-        #now we need to remove the batch file
-        batch_file = f"{device_key}.bat"
-        if os.path.exists(f"devices/{batch_file}"):
-            os.remove(f"devices/{batch_file}")
-            print(f"Batch file removed: {batch_file}")
+        #same for Password.json
+        with open("passwords.json") as f:
+            passwords = json.load(f).get("passwords", [])
+
+        passwords_key = passwords[index]
+
+        print(passwords)
+        del passwords[index]
+        print(f"edit: {passwords}")
+
+        if passwords_key not in passwords:
+            print(f"{passwords_key} removed from passwords.json")
         else:
-            print(f"Batch file not found: {batch_file}")
+            print(f"Failed to remove {passwords_key} from passwords.json")
         
+        with open("passwords.json", "w") as f:
+            json.dump({"passwords": passwords}, f, indent=4)
+
     #find the IP corresponding to this device match by index in devices.json
     try:
         with open("devices.json") as f:
@@ -248,9 +249,6 @@ def use_variables(device_name, ip_address, user, frame, password):
     key2 = ip.lower()
     key3 = user_val.lower()
     key4 = password
-
-    #create batch file to ssh into the device - not used now fn
-    #write_batch(ip, user_val, key)
 
     #clears the error message if there is one in a super awful way, should be fixed in the future
     clear_label = tk.Label(frame, text="                                                            ",
@@ -377,12 +375,6 @@ def main_window():
     window.title("Python SSH")
     window.geometry("650x450")
 
-    #images for icons
-    photo = Image.open("icons/ssh.png")
-    image = photo.resize((15, 15))
-    global icon
-    icon = ImageTk.PhotoImage(image)
-
     #a placeholder frame to make the add device button look good ig
     add_device_placeholder_frame = ctk.CTkFrame(window, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
     add_device_placeholder_frame.pack(pady=5)
@@ -404,22 +396,7 @@ def main_window():
 main_window_thread = threading.Thread(target=main_window)
 main_window_thread.daemon = False
 main_window_thread.start()
-
-
-#add close window on button press to add device window // DONE 
-#add ip address to the device display on gui // DONE
-#add delete device function //DONE
-#rework the ssh method to use subproces //DONE
-#move offline label //DONE
-#add all fetures to offline label // DONE
-#add function to write username to usernames.json // DONE
-#add password feild //DONE
-#add password to passwods.json //DONE
-#make a function to read and assign them //DONE
-#intergrate my ssh functions 
-#add delete function for passwords
-#make ui better
-#auto update online status 
+ 
 
 
 

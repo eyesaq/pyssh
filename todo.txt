@@ -1,0 +1,14 @@
+add close window on button press to add device window // DONE 
+add ip address to the device display on gui // DONE
+add delete device function //DONE
+rework the ssh method to use subproces //DONE
+move offline label //DONE
+add all fetures to offline label // DONE
+add function to write username to usernames.json // DONE
+add password feild //DONE
+add password to passwods.json //DONE
+make a function to read and assign them //DONE
+intergrate my ssh functions //DONE
+add delete function for passwords //DONE
+make ui better
+auto update online status
