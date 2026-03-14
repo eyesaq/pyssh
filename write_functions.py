@@ -1,7 +1,7 @@
 import os
 import json
 
-# utility functions for the SSH GUI application
+# utility functions for the application
 
 # writes device info to devices.json
 def write_name_json(data, filename="devices.json"):
