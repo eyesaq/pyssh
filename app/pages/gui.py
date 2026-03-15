@@ -1,23 +1,16 @@
-#importing all my python goyslop for my spaghetti code of impending doom
-from cProfile import label
-from ipaddress import ip_address
+# Standard libraries
 import os
 import tkinter as tk
 import json
-from write_functions import write_name_json
-from write_functions import write_ip_json 
-from write_functions import write_username_json
-from write_functions import write_password_json
-from ssh_functions import ssh
-from ssh_functions import reboot
-from ssh_functions import shutdown
-import customtkinter as ctk
-#from PIL import Image, ImageTk 
+#from PIL import Image, ImageTk
 import threading
-import time
+import customtkinter as ctk
 
-#the pain starts here
-#clears entry feilds when button is clicked gng
+# Local application imports
+from app.services.write_functions import write_name_json, write_ip_json, write_username_json, write_password_json
+from app.services.ssh_functions import ssh, reboot, shutdown
+
+
 def clear_entry_fields(*fields):
     for field in fields:
         field.delete(0, tk.END)
@@ -87,12 +80,12 @@ def create_device_button(device):
 
 
     def get_ip():
-        with open("devices.json") as f:
+        with open("../../data/devices.json") as f:
             devices = json.load(f).get("devices", [])
         global get_ip_index
         get_ip_index = [d.lower() for d in devices].index(key.lower())
 
-        with open("ips.json") as f:
+        with open("../../data/ips.json") as f:
             ips = json.load(f).get("ips", [])
 
         global ip_address_name
@@ -100,14 +93,14 @@ def create_device_button(device):
         
     def get_username(get_ip_index):
         index = get_ip_index
-        with open("usernames.json") as f:
+        with open("../../data/usernames.json") as f:
             usernames = json.load(f).get("usernames", [])
         global username_name
         username_name = usernames[index]
 
     def get_password(get_ip_index):
         index = get_ip_index
-        with open("passwords.json") as f:
+        with open("../../data/passwords.json") as f:
             passwords = json.load(f).get("passwords", [])
         global password_name
         password_name = passwords[index]
@@ -118,7 +111,7 @@ def create_device_button(device):
 
         #deletes and writes device name
         #open json
-        with open("devices.json") as f:
+        with open("../../data/devices.json") as f:
             devices = json.load(f).get("devices", [])
 
         #get index of the key
@@ -133,11 +126,11 @@ def create_device_button(device):
             print(f"Failed to remove {device_key} from devices.json")
 
         #write to the json file
-        with open("devices.json", "w") as f:
+        with open("../../data/devices.json", "w") as f:
             json.dump({"devices": devices}, f, indent=4)
 
-        #deletes and writes ip
-        with open("ips.json") as f:
+        #same shit just for ip ips.json
+        with open("../../data/ips.json") as f:
             ips = json.load(f).get("ips", [])
 
         ip_key = ips[index]
@@ -151,11 +144,12 @@ def create_device_button(device):
         else:
             print(f"Failed to remove {ip_key} from ips.json")
 
-        with open("ips.json", "w") as f:
+        with open("../../data/ips.json", "w") as f:
             json.dump({"ips": ips}, f, indent=4)
 
-        #deletes and writes Username
-        with open("usernames.json") as f:
+        #same for Username.json
+
+        with open("../../data/usernames.json") as f:
             usernames = json.load(f).get("usernames", [])
         
         usernames_key = usernames[index]
@@ -169,11 +163,11 @@ def create_device_button(device):
         else:
             print(f"Failed to remove {usernames_key} from usernames.json")
 
-        with open("usernames.json", "w") as f:
+        with open("../../data/usernames.json", "w") as f:
            json.dump({"usernames": usernames}, f, indent=4)
 
-        #deletes and writes password
-        with open("passwords.json") as f:
+        #same for Password.json
+        with open("../../data/passwords.json") as f:
             passwords = json.load(f).get("passwords", [])
 
         passwords_key = passwords[index]
@@ -187,7 +181,7 @@ def create_device_button(device):
         else:
             print(f"Failed to remove {passwords_key} from passwords.json")
         
-        with open("passwords.json", "w") as f:
+        with open("../../data/passwords.json", "w") as f:
             json.dump({"passwords": passwords}, f, indent=4)
         
     def device_status_check(online, ip, key, new_label_frame):
@@ -218,9 +212,9 @@ def create_device_button(device):
 
     #find the IP corresponding to this device match by index in devices.json
     try:
-        with open("devices.json") as f:
+        with open("../../data/devices.json") as f:
             devices = json.load(f).get("devices", [])
-        with open("ips.json") as f:
+        with open("../../data/ips.json") as f:
             ips = json.load(f).get("ips", [])
         try:
             idx = devices.index(key)
@@ -283,7 +277,7 @@ def use_variables(device_name, ip_address, user, frame, password):
 
     #writes ip to ips.json
     try:
-        with open("ips.json") as json_file:
+        with open("../../data/ips.json") as json_file:
             data2 = json.load(json_file)
     except Exception:
         data2 = {"ips": []}
@@ -297,7 +291,7 @@ def use_variables(device_name, ip_address, user, frame, password):
 
     #write device name to devices.json 
     try:
-        with open("devices.json") as json_file:
+        with open("../../data/devices.json") as json_file:
             data = json.load(json_file)
     except Exception:
         data = {"devices": []}
@@ -311,7 +305,7 @@ def use_variables(device_name, ip_address, user, frame, password):
 
     #writes username to usernames.json
     try:
-        with open("usernames.json") as json_file:
+        with open("../../data/usernames.json") as json_file:
             data3 = json.load(json_file)
     except Exception:
         data3 = {"usernames": []}
@@ -325,7 +319,7 @@ def use_variables(device_name, ip_address, user, frame, password):
 
     #writes passwords to passwords.json
     try: 
-        with open("passwords.json") as json_file:
+        with open("../../data/passwords.json") as json_file:
             data4 = json.load(json_file)
     except Exception:
         data4 = {"passwords": []}
