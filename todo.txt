@@ -10,5 +10,9 @@ add password to passwods.json //DONE
 make a function to read and assign them //DONE
 intergrate my ssh functions //DONE
 add delete function for passwords //DONE
-make ui better
-auto update online status
+auto update online status //DONE
+add a limit on how many add_device_window() can be open at once (probs just 1 to reduce chance of bugs)
+check linux and mac compatibility - might have to add different configs per os and an option to change it or auto detect.
+make ui better / cleaner
+make widgets scrollable
+
