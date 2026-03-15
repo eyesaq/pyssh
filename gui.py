@@ -14,31 +14,24 @@ from ssh_functions import shutdown
 import customtkinter as ctk
 #from PIL import Image, ImageTk 
 import threading
+import time
 
 #the pain starts here
-
 #clears entry feilds when button is clicked gng
 def clear_entry_fields(*fields):
     for field in fields:
         field.delete(0, tk.END)
 
 def create_device_button(device):
+    print("Loading device buttons...")
     key = device.lower()
-    
-    #i use subprocess and threading for ts. so i dont need it now but im too lazy to delete it 
-    def open_device():
-        path = os.path.join("Devices", f"{key}.bat")
-        try:
-            os.startfile(path)
-        except Exception as e:
-            print(f"Failed to start {path}: {e}")
 
     #offline device gui look
     def device_offline(key):
         get_ip()
 
         global new_label_frame
-        new_label_frame = ctk.CTkFrame(window, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        new_label_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         new_label_frame.pack(pady=5)
         new_label_frame.pack_propagate(False)
 
@@ -64,7 +57,7 @@ def create_device_button(device):
         get_password(get_ip_index)
 
         global new_label_frame
-        new_label_frame = ctk.CTkFrame(window, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        new_label_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         new_label_frame.pack(pady=5)
         new_label_frame.pack_propagate(False)
 
@@ -123,6 +116,7 @@ def create_device_button(device):
     def delete_device(frame, device_key):
         frame.destroy()
 
+        #deletes and writes device name
         #open json
         with open("devices.json") as f:
             devices = json.load(f).get("devices", [])
@@ -142,7 +136,7 @@ def create_device_button(device):
         with open("devices.json", "w") as f:
             json.dump({"devices": devices}, f, indent=4)
 
-        #same shit just for ip ips.json
+        #deletes and writes ip
         with open("ips.json") as f:
             ips = json.load(f).get("ips", [])
 
@@ -160,8 +154,7 @@ def create_device_button(device):
         with open("ips.json", "w") as f:
             json.dump({"ips": ips}, f, indent=4)
 
-        #same for Username.json
-
+        #deletes and writes Username
         with open("usernames.json") as f:
             usernames = json.load(f).get("usernames", [])
         
@@ -179,7 +172,7 @@ def create_device_button(device):
         with open("usernames.json", "w") as f:
            json.dump({"usernames": usernames}, f, indent=4)
 
-        #same for Password.json
+        #deletes and writes password
         with open("passwords.json") as f:
             passwords = json.load(f).get("passwords", [])
 
@@ -196,6 +189,32 @@ def create_device_button(device):
         
         with open("passwords.json", "w") as f:
             json.dump({"passwords": passwords}, f, indent=4)
+        
+    def device_status_check(online, ip, key, new_label_frame):
+        if not new_label_frame.winfo_exists():
+            return
+
+        print("Checking status...")
+        response = os.system(f"ping -n 1 {ip}")
+
+        if response == 0:
+            print(f"{ip} is reachable")
+            check_online = True
+        else:
+            print(f"{ip} is not reachable")
+            check_online = False
+
+        if check_online != online:
+            print("Status change detected, Refreshing...")
+            for widget in device_container.winfo_children():
+                widget.destroy()
+            load_devices()
+            online = check_online
+        else:
+            print("No status change")
+
+        # schedule next check in 5 seconds
+        window.after(5000, lambda: device_status_check(online, ip, key, new_label_frame))
 
     #find the IP corresponding to this device match by index in devices.json
     try:
@@ -216,13 +235,19 @@ def create_device_button(device):
         if response == 0:
             print(f"{ip} is reachable")
             device_online(key)
+            print("Loaded online config!")
+            online = True
+           
         else:
             print(f"{ip} is not reachable")
             device_offline(key)
+            print("Loaded offline config!")
+            online = False
     else:
         print(f"No IP found for {key}; skipping ping")
         device_offline(key)
-
+    window.after(300, lambda: device_status_check(online, ip, key, new_label_frame))
+            
 #gets info from the entry fields and calls the functions to create batch file and write to json
 def use_variables(device_name, ip_address, user, frame, password):
     #get the values from the entry fields without whitespace
@@ -316,6 +341,7 @@ def use_variables(device_name, ip_address, user, frame, password):
 
 #creates buttons on startup
 def load_devices(filename="devices.json"):
+    print("loading devices...")
     try:
         with open(filename) as f:
             data = json.load(f)
@@ -368,7 +394,7 @@ def add_device_window():
 
 
 def main_window():
-
+    print("Starting main window...")
     #main GUI window
     global window
     window = ctk.CTk()
@@ -380,8 +406,13 @@ def main_window():
     add_device_placeholder_frame.pack(pady=5)
     add_device_placeholder_frame.pack_propagate(False)
 
+    #contains all device widgets
+    global device_container
+    device_container = ctk.CTkFrame(window, fg_color="transparent")
+    device_container.pack()
+
     #add device button
-    add_device_placeholder_button = ctk.CTkButton(add_device_placeholder_frame, text="+", font=("Arial", 25, "bold"), height=30, width=30, command=add_device_window, bg_color="transparent", fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
+    add_device_placeholder_button = ctk.CTkButton(add_device_placeholder_frame, text="+", font=("Arial", 25, "bold"), height=30, width=30, command=lambda: add_device_window(), bg_color="transparent", fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
     add_device_placeholder_button.pack(pady=10)
     add_device_placeholder_button.place(relx=0.08, rely=0.5, anchor=tk.CENTER)
 
@@ -393,10 +424,7 @@ def main_window():
     load_devices()
     window.mainloop()
 
-main_window_thread = threading.Thread(target=main_window)
-main_window_thread.daemon = False
-main_window_thread.start()
- 
+main_window()
 
 
 
