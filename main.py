@@ -1,4 +1,4 @@
-from backend.app import App
+from app.app import App
 
 def main():
     app = App()
