@@ -9,18 +9,12 @@ import threading
 
 
 class ConnectionButton(ctk.CTkButton):
-    def __init__(self, parent, app, connection):
+    def __init__(self, parent, app, ip_address):
         self._parent = parent
         self._app = app
         self.ip_address = ip_address
         self.online_status = online_status
 
-        ip_address = self.connection['ip_address']
-        device_name = self.connection['device_name']
-        password = self.connection['password']
-        username = self.connection['username']
-
-    
     def set_online_status(self, online_status: bool):
         pass
 
@@ -31,7 +25,7 @@ class ConnectionButton(ctk.CTkButton):
         device_name = self._app.database.get_field_by_ip(self.ip_address, "device_name")
         username = self._app.database.get_field_by_ip(self.ip_address, "username")
         password = self._app.database.get_field_by_ip(self.ip_address, "password")
-
+        
         # Frame - add device_container to home.py
         online_connection_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         online_connection_frame.pack(pady=5)
