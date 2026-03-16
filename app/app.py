@@ -3,7 +3,8 @@ import customtkinter as tk
 
 # Local application imports
 from app.pages.home import HomePage
-from app.services.user_data import UserData
+from app.storage.user_data import UserDataDir
+from app.storage.database import Database
 
 class App(tk.CTk):
     """Application root, responsible for root level actions."""
@@ -12,7 +13,8 @@ class App(tk.CTk):
         self.title("PySSH")
         self.geometry("800x600")
 
-        self.user_data = UserData()
+        self.user_data_dir = UserDataDir()
+        self.database = Database(self.user_data_dir)
 
         self.container = tk.CTkFrame(self)
         self.container.pack(fill="both", expand=True)
@@ -30,6 +32,8 @@ class App(tk.CTk):
 
         # Display the page.
         self.pages[page_class].tkraise()
+
+        print(f"Switched page to {page_class.__name__}")
 
 
     def run(self):

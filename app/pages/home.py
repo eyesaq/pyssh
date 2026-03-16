@@ -1,6 +1,8 @@
 import customtkinter as ctk
 import tkinter as tk
 
+from app.dialogs.add_device import AddDeviceDialog
+
 class HomePage(ctk.CTkFrame):
     def __init__(self, parent, app):
         self._parent = parent
@@ -16,7 +18,7 @@ class HomePage(ctk.CTkFrame):
 
         add_device_placeholder_button = ctk.CTkButton(add_device_placeholder_frame, text="+",
                                                       font=("Arial", 25, "bold"), height=30, width=30,
-                                                      command=lambda: 1, bg_color="transparent",
+                                                      command=self.on_add_device, bg_color="transparent",
                                                       fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
         add_device_placeholder_button.pack(pady=10)
         add_device_placeholder_button.place(relx=0.08, rely=0.5, anchor=tk.CENTER)
@@ -28,3 +30,10 @@ class HomePage(ctk.CTkFrame):
         add_device_placeholder_label.place(relx=0.3, rely=0.5, anchor=tk.CENTER)
 
         #load_devices()
+
+    def on_add_device(self):
+        add_device_dialog = AddDeviceDialog(self, self._app, self.on_connection_creation)
+
+    def on_connection_creation(self, device_name):
+        # todo create button for the device
+        pass
