@@ -88,14 +88,11 @@ class AddDeviceDialog(ctk.CTkToplevel):
         normalized_username = username.lower().strip()
         normalized_password = password
 
-        # Hash plaintext passwords
-        normalized_hashed_password = self._hash_password(normalized_password)
-
         # Add the new connection to the database
         self._app.database.add_connection(normalized_ip_address,
                                           normalized_device_name,
                                           normalized_username,
-                                          normalized_hashed_password)
+                                          normalized_password)
         print(f"Saved connection: {device_name} @ {ip_address}")
 
         # todo use a connection
@@ -106,7 +103,3 @@ class AddDeviceDialog(ctk.CTkToplevel):
     def _validate_entries(self, ip_address, device_name, username, password):
         pass    # todo validation logic
         return True
-
-    def _hash_password(self, password):
-        # todo hash plaintext
-        return password

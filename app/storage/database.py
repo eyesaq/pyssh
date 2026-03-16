@@ -7,7 +7,7 @@ class Database:
         "ip_address",
         "device_name",
         "username",
-        "password_hash",
+        "password",
     }
 
     def __init__(self, user_data_dir):
@@ -25,7 +25,7 @@ class Database:
                     ip_address TEXT PRIMARY KEY,
                     device_name TEXT NOT NULL,
                     username TEXT NOT NULL,
-                    password_hash TEXT NOT NULL
+                    password TEXT NOT NULL
                 )
                 """
             )
@@ -47,8 +47,9 @@ class Database:
             ip_address: str,
             device_name: str,
             username: str,
-            password_hash: str,
+            password: str,
         ) -> None:
+            """Create a new connection record"""
             with self._connect() as conn:
                 conn.execute(
                     """
@@ -56,22 +57,23 @@ class Database:
                         ip_address,
                         device_name,
                         username,
-                        password_hash
+                        password
                     )
                     VALUES (?, ?, ?, ?)
                     ON CONFLICT(ip_address) DO UPDATE SET
                         device_name = excluded.device_name,
                         username = excluded.username,
-                        password_hash = excluded.password_hash
+                        password = excluded.password
                     """,
-                    (ip_address, device_name, username, password_hash),
+                    (ip_address, device_name, username, password),
                 )
 
     def get_all_connections(self) -> list[dict]:
+        """Retrieve all connections"""
         with self._connect() as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
-                "SELECT ip_address, device_name, username, password_hash FROM connections"
+                "SELECT ip_address, device_name, username, password FROM connections"
             ).fetchall()
 
         return [dict(row) for row in rows]

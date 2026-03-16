@@ -64,3 +64,18 @@ class ConnectionButton(ctk.CTkButton):
 
         ip_address_label = ctk.CTkLabel(new_label_frame, text=ip_address_name, bg_color="transparent")
         ip_address_label.pack(pady=5)
+
+    def _reboot(self, ip_address_name, username_name, password_name):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        ssh.connect(
+            router_ip=self.connection['ip_address'],
+            username=self.connection['username'],
+            password=self.connection['password']
+        )
+        stdin, stdout, stderr = ssh.exec_command("sudo shutdown -r now")
+        output = stdout.readlines()
+
+        for line in output:
+            print(line.strip())
