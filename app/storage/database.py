@@ -69,7 +69,7 @@ class Database:
                 )
 
     def get_all_connections(self) -> list[dict]:
-        """Retrieve all connections"""
+        """Retrieve all connections."""
         with self._connect() as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
@@ -77,3 +77,11 @@ class Database:
             ).fetchall()
 
         return [dict(row) for row in rows]
+
+    def delete_connection_by_ip(self, ip_address: str) -> None:
+        """Delete a connection record by IP address."""
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM connections WHERE ip_address = ?",
+                (ip_address,),
+            )
