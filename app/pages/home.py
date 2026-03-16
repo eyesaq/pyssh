@@ -1,6 +1,9 @@
+# Standard imports
 import customtkinter as ctk
 import tkinter as tk
+import os
 
+# Local application imports
 from app.dialogs.add_device import AddDeviceDialog
 
 class HomePage(ctk.CTkFrame):
@@ -29,19 +32,29 @@ class HomePage(ctk.CTkFrame):
         add_device_placeholder_label.pack(pady=10)
         add_device_placeholder_label.place(relx=0.3, rely=0.5, anchor=tk.CENTER)
 
-        #load_devices()
+        self._init_buttons()
 
     def on_add_device(self):
-        add_device_dialog = AddDeviceDialog(self, self._app, self.on_connection_creation)
+        AddDeviceDialog(self, self._app, self.on_connection_creation)
 
-    def on_connection_creation(self, device_name):
+    def on_connection_creation(self, connection):
         # todo create button for the device
+        self.create_connection_button(connection)
         pass
 
     def _init_buttons(self):
         connections = self._app.database.get_all_connections()
         for connection in connections:
-            self.create_button(connection)
+            self.create_connection_button(connection)
 
-    def create_button(self, connection: dict):
-        pass
+    def create_connection_button(self, connection: dict):
+        # find the IP corresponding to this device match by index in devices.json
+        ip = connection['ip_address']
+
+        response = os.system(f"ping -n 1 {ip}")
+        if response == 0:
+            print(f"{ip} is reachable")
+            device_online(key)
+        else:
+            print(f"{ip} is not reachable")
+            device_offline(key)

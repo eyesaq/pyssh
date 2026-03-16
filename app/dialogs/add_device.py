@@ -98,7 +98,7 @@ class AddDeviceDialog(ctk.CTkToplevel):
                                           normalized_hashed_password)
         print(f"Saved connection: {device_name} @ {ip_address}")
 
-        # add the button to the ui with name
+        # todo use a connection
         self._on_connection_creation(device_name)
 
         self.destroy()
