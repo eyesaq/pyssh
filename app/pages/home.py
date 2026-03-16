@@ -14,23 +14,23 @@ class HomePage(ctk.CTkFrame):
         super().__init__(self._parent)
 
         # -- Add Device button --
-        add_device_placeholder_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent",
+        add_device_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent",
                                                     fg_color="gray21", corner_radius=1)
-        add_device_placeholder_frame.pack(pady=5)
-        add_device_placeholder_frame.pack_propagate(False)
+        add_device_frame.pack(pady=5)
+        add_device_frame.pack_propagate(False)
 
-        add_device_placeholder_button = ctk.CTkButton(add_device_placeholder_frame, text="+",
+        add_device_button = ctk.CTkButton(add_device_frame, text="+",
                                                       font=("Arial", 25, "bold"), height=30, width=30,
                                                       command=self.on_add_device, bg_color="transparent",
                                                       fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
-        add_device_placeholder_button.pack(pady=10)
-        add_device_placeholder_button.place(relx=0.08, rely=0.5, anchor=tk.CENTER)
+        add_device_button.pack(pady=10)
+        add_device_button.place(relx=0.08, rely=0.5, anchor=tk.CENTER)
 
-        add_device_placeholder_label = ctk.CTkLabel(add_device_placeholder_frame, text="Add Device",
+        add_device_label = ctk.CTkLabel(add_device_frame, text="Add Device",
                                                     font=("Arial", 20, "bold"), fg_color="transparent",
                                                     bg_color="transparent", text_color="white")
-        add_device_placeholder_label.pack(pady=10)
-        add_device_placeholder_label.place(relx=0.3, rely=0.5, anchor=tk.CENTER)
+        add_device_label.pack(pady=10)
+        add_device_label.place(relx=0.3, rely=0.5, anchor=tk.CENTER)
 
         self._init_buttons()
 

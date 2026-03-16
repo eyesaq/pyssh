@@ -3,79 +3,97 @@ from ipaddress import ip_address
 
 import customtkinter as ctk
 import tkinter as tk
+import threading
 
 # Local application imports
 
+
 class ConnectionButton(ctk.CTkButton):
-    def __init__(self, parent, connection):
+    def __init__(self, parent, app, connection):
         self._parent = parent
-        self.connection = connection
+        self._app = app
+        self.ip_address = ip_address
+        self.online_status = online_status
 
         ip_address = self.connection['ip_address']
         device_name = self.connection['device_name']
+        password = self.connection['password']
+        username = self.connection['username']
 
-        get_username(get_ip_index)
-        get_password(get_ip_index)
+    
+    def set_online_status(self, online_status: bool):
+        pass
 
         # == GUI ==
-        new_label_frame = ctk.CTkFrame(
-            self._parent, width=340, height=50, bg_color="transparent",
-            fg_color="gray21", corner_radius=1
-        )
-        new_label_frame.pack(pady=5)
-        new_label_frame.pack_propagate(False)
+        # == Online device widget ==
+    def online_connection_widget(self):
+        # Gets device info from database
+        device_name = self._app.database.get_field_by_ip(self.ip_address, "device_name")
+        username = self._app.database.get_field_by_ip(self.ip_address, "username")
+        password = self._app.database.get_field_by_ip(self.ip_address, "password")
 
-        new_label = ctk.CTkLabel(
-            new_label_frame, text=device_name, font=("Arial", 10, "bold"),
-            fg_color="transparent", bg_color="transparent", text_color="white"
-        )
+        # Frame - add device_container to home.py
+        online_connection_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        online_connection_frame.pack(pady=5)
+        online_connection_frame.pack_propagate(False)
+
+        # Nameplate
+        new_label = ctk.CTkLabel(online_connection_frame, text=device_name, font=("Arial", 10, "bold"), fg_color="transparent", bg_color="transparent", text_color="white")
         new_label.pack(pady=5)
         new_label.place(relx=0.05, rely=0.13, anchor=tk.W)
 
-        #menu for ssh controls
-        menu = tk.Menubutton(
-            new_label_frame, text="⋯", font=("Arial", 25), bg="gray21",
-            fg="white", activebackground="gray21", activeforeground="gray",
-            relief="flat", bd=0, highlightthickness=0,
-            highlightbackground="gray21", highlightcolor="gray21"
-        )
-        menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
-
-        menu.menu = tk.Menu(menu, tearoff=0, bg="gray10", fg="white", relief="flat", bd=0)
-        menu["menu"] = menu.menu
-
-        menu.menu.add_command(label="Reboot", command=lambda ip_address_name=ip_address_name, username_name=username_name, password_name=password_name: reboot(ip_address_name, username_name, password_name))
-        menu.menu.add_command(label="Shutdown", command=lambda ip_address_name=ip_address_name, username_name=username_name, password_name=password_name: shutdown(ip_address_name, username_name, password_name))
-        menu.menu.add_command(label="SSH", command=lambda username=username_name, ip_address=ip_address_name: threading.Thread(target=lambda: ssh(username, ip_address)).start())
-
-        online_label = ctk.CTkLabel(
-            new_label_frame, text="● Online", font=("Arial", 10), fg_color="transparent",
-            bg_color="transparent", text_color="green"
-        )
+        # Shows online status
+        online_label = ctk.CTkLabel(online_connection_frame, text="● Online", font=("Arial", 10), fg_color="transparent", bg_color="transparent", text_color="green")
         online_label.pack(pady=5)
         online_label.place(relx=0.85, rely=0.229, anchor=tk.W)
 
-        delete_button = ctk.CTkButton(
-            new_label_frame, text="X", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
-            text_color="red", corner_radius=0,
-            command=lambda frame=new_label_frame, device_key=device_name: delete_device(frame, device_key))
-        delete_button.pack(pady=5)
-        delete_button.place(relx =0.02, rely=0.13, anchor=tk.CENTER)
+        # Menu for ssh controls - reboot, shutdown and ssh functions need to be added
+        menu = tk.Menubutton(online_connection_frame, text="⋯", font=("Arial", 25), bg="gray21",fg="white" ,activebackground="gray21", activeforeground="gray", relief="flat", bd=0, highlightthickness=0, highlightbackground="gray21", highlightcolor="gray21")
+        menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
+        menu.menu = tk.Menu(menu, tearoff=0, bg="gray10", fg="white", relief="flat", bd=0)
+        menu["menu"] = menu.menu
+        menu.menu.add_command(label="Reboot", command=lambda ip_address = self.ip_address, username=username, password=password: reboot(ip_address, username, password))
+        menu.menu.add_command(label="Shutdown", command=lambda ip_address = self.ip_address, username=username, password=password: shutdown(ip_address, username, password))
+        menu.menu.add_command(label="SSH", command=lambda username=username, ip_address=self.ip_address: threading.Thread(target=lambda: ssh(username, ip_address)).start())
 
-        ip_address_label = ctk.CTkLabel(new_label_frame, text=ip_address_name, bg_color="transparent")
+        # Needs delete device function - now using ip address instead of key
+        delete_connection = ctk.CTkButton(online_connection_frame, text="X", width=15, height=15, fg_color="transparent", hover_color="gainsboro", text_color="red", corner_radius=0, command=lambda frame=online_connection_frame, ip_address = self.ip_address: delete_device(frame, ip_address))
+        delete_connection.pack(pady=5)
+        delete_connection.place(relx =0.02, rely=0.13, anchor=tk.CENTER)
+
+        # Shows ip label
+        ip_address_label = ctk.CTkLabel(online_connection_frame, text=self.ip_address, bg_color="transparent")
         ip_address_label.pack(pady=5)
 
-    def _reboot(self, ip_address_name, username_name, password_name):
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # ==Online device widget==
+    def offline_connection_widget(self):
+        # Gets device info from database
+        device_name = self._app.database.get_field_by_ip(self.ip_address, "device_name")
+        username = self._app.database.get_field_by_ip(self.ip_address, "username")
+        password = self._app.database.get_field_by_ip(self.ip_address, "password")
 
-        ssh.connect(
-            router_ip=self.connection['ip_address'],
-            username=self.connection['username'],
-            password=self.connection['password']
-        )
-        stdin, stdout, stderr = ssh.exec_command("sudo shutdown -r now")
-        output = stdout.readlines()
+        # Frame - add device_container to home.py
+        offline_connection_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        offline_connection_frame.pack(pady=5)
+        offline_connection_frame.pack_propagate(False)
 
-        for line in output:
-            print(line.strip())
+        # Nameplate
+        new_label = ctk.CTkLabel(offline_connection_frame, text=device_name, font=("Arial", 10, "bold"), fg_color="transparent", bg_color="transparent", text_color="white")
+        new_label.pack(pady=5)
+        new_label.place(relx=0.05, rely=0.13, anchor=tk.W)
+
+        # Shows online status
+        offline_label = ctk.CTkLabel(offline_connection_frame, text="● Offline", font=("Arial", 10), fg_color="transparent", bg_color="transparent", text_color="red")
+        offline_label.pack(pady=5)
+        offline_label.place(relx=0.85, rely=0.229, anchor=tk.W)
+
+        # Needs delete device function - now using ip address instead of key
+        delete_connection = ctk.CTkButton(offline_connection_frame, text="X", width=15, height=15, fg_color="transparent", hover_color="gainsboro", text_color="red", corner_radius=4, command=lambda frame=offline_connection_frame, ip_address = self.ip_address: delete_device(frame, ip_address))
+        delete_connection.pack(pady=5)
+        delete_connection.place(relx =0.02, rely=0.13, anchor=tk.CENTER)
+
+        # Shows ip label
+        ip_address_label = ctk.CTkLabel(offline_connection_frame, text=self.ip_address, bg_color="transparent")
+        ip_address_label.pack(pady=5)
+
+
