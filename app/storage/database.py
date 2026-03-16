@@ -85,3 +85,14 @@ class Database:
                 "DELETE FROM connections WHERE ip_address = ?",
                 (ip_address,),
             )
+
+    def update_field_by_ip(self, ip_address: str, field: str, value: str) -> None:
+        """Update a single field for a connection identified by IP address."""
+        if field not in self._ALLOWED_FIELDS:
+            raise ValueError(f"Invalid field: {field}")
+
+        with self._connect() as conn:
+            conn.execute(
+                f"UPDATE connections SET {field} = ? WHERE ip_address = ?",
+                (value, ip_address),
+            )
