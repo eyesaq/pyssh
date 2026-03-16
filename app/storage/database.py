@@ -67,3 +67,11 @@ class Database:
                     (ip_address, device_name, username, password_hash),
                 )
 
+    def get_all_connections(self) -> list[dict]:
+        with self._connect() as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT ip_address, device_name, username, password_hash FROM connections"
+            ).fetchall()
+
+        return [dict(row) for row in rows]

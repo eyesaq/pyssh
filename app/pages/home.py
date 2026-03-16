@@ -37,3 +37,11 @@ class HomePage(ctk.CTkFrame):
     def on_connection_creation(self, device_name):
         # todo create button for the device
         pass
+
+    def _init_buttons(self):
+        connections = self._app.database.get_all_connections()
+        for connection in connections:
+            self.create_button(connection)
+
+    def create_button(self, connection: dict):
+        pass
