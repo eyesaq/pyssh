@@ -2,7 +2,7 @@
 import customtkinter as tk
 
 # Local application imports
-from pages.home import HomePage
+from app.pages.home import HomePage
 from app.services.user_data import UserData
 
 class App(tk.CTk):
