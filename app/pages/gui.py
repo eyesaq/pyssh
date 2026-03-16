@@ -31,7 +31,7 @@ def create_device_button(device):
         get_ip()
 
         global new_label_frame
-        new_label_frame = ctk.CTkFrame(window, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        new_label_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         new_label_frame.pack(pady=5)
         new_label_frame.pack_propagate(False)
 
@@ -57,7 +57,7 @@ def create_device_button(device):
         get_password(get_ip_index)
 
         global new_label_frame
-        new_label_frame = ctk.CTkFrame(window, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        new_label_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         new_label_frame.pack(pady=5)
         new_label_frame.pack_propagate(False)
 
@@ -189,6 +189,33 @@ def create_device_button(device):
         
         with open("../../data/passwords.json", "w") as f:
             json.dump({"passwords": passwords}, f, indent=4)
+
+    #checks for change in device online status and changes widget accordingly 
+    def device_status_check(online, ip, key, new_label_frame):
+        if not new_label_frame.winfo_exists():
+            return
+
+        print("Checking status...")
+        response = os.system(f"ping -n 1 {ip}")
+
+        if response == 0:
+            print(f"{ip} is reachable")
+            check_online = True
+        else:
+            print(f"{ip} is not reachable")
+            check_online = False
+
+        if check_online != online:
+            print("Status change detected, Refreshing...")
+            for widget in device_container.winfo_children():
+                widget.destroy()
+            load_devices()
+            online = check_online
+        else:
+            print("No status change")
+
+        #schedule next check in 5 seconds
+        window.after(5000, lambda: device_status_check(online, ip, key, new_label_frame))
 
     #find the IP corresponding to this device match by index in devices.json
     try:
@@ -372,6 +399,13 @@ def main_window():
     add_device_placeholder_frame = ctk.CTkFrame(window, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
     add_device_placeholder_frame.pack(pady=5)
     add_device_placeholder_frame.pack_propagate(False)
+    
+    #contains all device widgets and allows you to scroll if widgest exceed size of frame
+    global device_container
+    device_container = ctk.CTkScrollableFrame(window, fg_color="transparent", height=300, width=340)
+    device_container.pack
+    device_container.place(relx=0.229, rely=0.13)
+    device_container._scrollbar.configure(width=11)
 
     #add device button
     add_device_placeholder_button = ctk.CTkButton(add_device_placeholder_frame, text="+", font=("Arial", 25, "bold"), height=30, width=30, command=add_device_window, bg_color="transparent", fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
@@ -386,6 +420,5 @@ def main_window():
     load_devices()
     window.mainloop()
 
-main_window_thread = threading.Thread(target=main_window, daemon=False)
-main_window_thread.start()
+main_window()
 
