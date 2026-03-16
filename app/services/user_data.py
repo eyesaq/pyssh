@@ -1,8 +1,7 @@
-# Standard imports
 from pathlib import Path
 import json
+from typing import Any, Iterable
 
-# Local application imports
 from app.config import APP_NAME
 
 
@@ -21,7 +20,6 @@ class UserData:
         C:\\Users\\<user>\\AppData\\Local\\PySSH
         """
         path = Path.home() / "AppData" / "Local" / APP_NAME
-
         path.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -29,7 +27,7 @@ class UserData:
         """Resolve a path inside the user data directory."""
         return self.base_dir.joinpath(*parts)
 
-    def load_json(self, name: str, default=None):
+    def load_json(self, name: str, default: Any = None) -> Any:
         """
         Load a JSON file from the user data directory.
 
@@ -42,7 +40,7 @@ class UserData:
         with file.open("r", encoding="utf-8") as f:
             return json.load(f)
 
-    def save_json(self, name: str, data):
+    def save_json(self, name: str, data: Any) -> None:
         """
         Save structured data as JSON in the user data directory.
 
@@ -51,3 +49,33 @@ class UserData:
         file = self.path(name)
         with file.open("w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+
+    def append_json_list(self, name: str, items: Iterable[Any]) -> None:
+        """
+        Append one or more items to a JSON list file.
+
+        If the file does not exist, it is created.
+        Raises TypeError if the existing file is not a list.
+        """
+        data = self.load_json(name, default=[])
+
+        if not isinstance(data, list):
+            raise TypeError(f"{name} does not contain a JSON list")
+
+        data.extend(items)
+        self.save_json(name, data)
+
+    def update_json_dict(self, name: str, updates: dict) -> None:
+        """
+        Update a JSON dictionary file with new key-value pairs.
+
+        If the file does not exist, it is created.
+        Raises TypeError if the existing file is not a dict.
+        """
+        data = self.load_json(name, default={})
+
+        if not isinstance(data, dict):
+            raise TypeError(f"{name} does not contain a JSON object")
+
+        data.update(updates)
+        self.save_json(name, data)
