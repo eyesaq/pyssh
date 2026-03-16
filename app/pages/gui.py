@@ -402,12 +402,8 @@ def main_window():
 
     #contains all device widgets
     global device_container
-    device_container = ctk.CTkScrollableFrame(window, fg_color="transparent", height=300, width=340)
-    device_container.pack
-    device_container.place(relx=0.229, rely=0.13)
-    device_container._scrollbar.configure(width=11)
-    #device_container._scrollbar.pack(side="right", fill="y")
-    
+    device_container = ctk.CTkFrame(window, fg_color="transparent")
+    device_container.pack()
 
     #add device button
     add_device_placeholder_button = ctk.CTkButton(add_device_placeholder_frame, text="+", font=("Arial", 25, "bold"), height=30, width=30, command=lambda: add_device_window(), bg_color="transparent", fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
