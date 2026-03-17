@@ -4,16 +4,18 @@ from ipaddress import ip_address
 import customtkinter as ctk
 import tkinter as tk
 import threading
+from app.pages.home import HomePage
 
 # Local application imports
 
 
 class ConnectionButton(ctk.CTkButton):
-    def __init__(self, parent, app, ip_address):
+    def __init__(self, parent, app, ip_address, online_status, device_container):
         self._parent = parent
         self._app = app
         self.ip_address = ip_address
         self.online_status = online_status
+        self.device_container = device_container
 
     def set_online_status(self, online_status: bool):
         pass
@@ -27,7 +29,7 @@ class ConnectionButton(ctk.CTkButton):
         password = self._app.database.get_field_by_ip(self.ip_address, "password")
         
         # Frame - add device_container to home.py
-        online_connection_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        online_connection_frame = ctk.CTkFrame(self.device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         online_connection_frame.pack(pady=5)
         online_connection_frame.pack_propagate(False)
 
@@ -63,11 +65,9 @@ class ConnectionButton(ctk.CTkButton):
     def offline_connection_widget(self):
         # Gets device info from database
         device_name = self._app.database.get_field_by_ip(self.ip_address, "device_name")
-        username = self._app.database.get_field_by_ip(self.ip_address, "username")
-        password = self._app.database.get_field_by_ip(self.ip_address, "password")
 
         # Frame - add device_container to home.py
-        offline_connection_frame = ctk.CTkFrame(device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        offline_connection_frame = ctk.CTkFrame(self.device_container, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         offline_connection_frame.pack(pady=5)
         offline_connection_frame.pack_propagate(False)
 

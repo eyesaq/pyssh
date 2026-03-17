@@ -5,34 +5,46 @@ import os
 
 # Local application imports
 from app.dialogs.add_device import AddDeviceDialog
+from app.ui.buttons.connection_button import ConnectionButton
 
 class HomePage(ctk.CTkFrame):
     def __init__(self, parent, app):
-        self._parent = parent
+        super().__init__(parent)
+
         self._app = app
 
-        super().__init__(self._parent)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
-        # -- Add Device button --
-        add_device_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent",
-                                                    fg_color="gray21", corner_radius=1)
-        add_device_frame.pack(pady=5)
-        add_device_frame.pack_propagate(False)
+        add_device_frame = ctk.CTkFrame(self, height=50)
+        add_device_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
 
-        add_device_button = ctk.CTkButton(add_device_frame, text="+",
-                                                      font=("Arial", 25, "bold"), height=30, width=30,
-                                                      command=self.on_add_device, bg_color="transparent",
-                                                      fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
-        add_device_button.pack(pady=10)
-        add_device_button.place(relx=0.08, rely=0.5, anchor=tk.CENTER)
+        add_device_frame.grid_columnconfigure(1, weight=1)
 
-        add_device_label = ctk.CTkLabel(add_device_frame, text="Add Device",
-                                                    font=("Arial", 20, "bold"), fg_color="transparent",
-                                                    bg_color="transparent", text_color="white")
-        add_device_label.pack(pady=10)
-        add_device_label.place(relx=0.3, rely=0.5, anchor=tk.CENTER)
+        add_device_button = ctk.CTkButton(
+            add_device_frame,
+            text="+",
+            font=("Arial", 25, "bold"),
+            command=self.on_add_device,
+            height=50,
+            width = 50
+        )
+        add_device_button.grid(row=0, column=0, padx=10, pady=10)
+
+        add_device_label = ctk.CTkLabel(
+            add_device_frame,
+            text="Add Device",
+            font=("Arial", 25, "bold")
+        )
+        add_device_label.grid(row=0, column=1, sticky="w")
+
+        self.device_container = ctk.CTkScrollableFrame(self)
+        self.device_container.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
+        self.conn_btn = ConnectionButton(self.device_container)
 
         self._init_buttons()
+
+        
 
     def on_add_device(self):
         AddDeviceDialog(self, self._app, self.on_connection_creation)
@@ -45,16 +57,8 @@ class HomePage(ctk.CTkFrame):
     def _init_buttons(self):
         connections = self._app.database.get_all_connections()
         for connection in connections:
-            self.create_connection_button(connection)
+            self.create_connection_button(connection["ip_address"])
 
-    def create_connection_button(self, connection: dict):
+    def create_connection_button(self, ip_address: str):
         # find the IP corresponding to this device match by index in devices.json
-        ip = connection['ip_address']
-
-        response = os.system(f"ping -n 1 {ip}")
-        if response == 0:
-            print(f"{ip} is reachable")
-            device_online(key)
-        else:
-            print(f"{ip} is not reachable")
-            device_offline(key)
+        ConnectionButton()
