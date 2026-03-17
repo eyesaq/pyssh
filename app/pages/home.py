@@ -5,7 +5,7 @@ import os
 
 # Local application imports
 from app.dialogs.add_device import AddDeviceDialog
-from app.ui.buttons.connection_button import ConnectionButton
+from app.ui.buttons.connection_button import ConnectionWidget
 
 class HomePage(ctk.CTkFrame):
     def __init__(self, parent, app):
@@ -40,7 +40,7 @@ class HomePage(ctk.CTkFrame):
 
         self.device_container = ctk.CTkScrollableFrame(self)
         self.device_container.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
-        self.conn_btn = ConnectionButton(self.device_container)
+        self.conn_btn_class = ConnectionWidget
 
         self._init_buttons()
 
@@ -61,4 +61,4 @@ class HomePage(ctk.CTkFrame):
 
     def create_connection_button(self, ip_address: str):
         # find the IP corresponding to this device match by index in devices.json
-        ConnectionButton()
+        ConnectionWidget()

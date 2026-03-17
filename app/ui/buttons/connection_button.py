@@ -4,12 +4,11 @@ from ipaddress import ip_address
 import customtkinter as ctk
 import tkinter as tk
 import threading
-from app.pages.home import HomePage
 
 # Local application imports
 
 
-class ConnectionButton(ctk.CTkButton):
+class Connectionwidget(ctk.CTkButton):
     def __init__(self, parent, app, ip_address, online_status, device_container):
         self._parent = parent
         self._app = app
