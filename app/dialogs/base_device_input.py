@@ -101,12 +101,14 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         return normalized_ip_address, normalized_device_name, normalized_username, normalized_password
 
-    def _bad_validation(self):
+    def _bad_validation(self, error_message):
         pass    # todo if validation fails
 
     def process_inputs(self):
-        self.process_function(self.retrieve_normalized_inputs())
-        self.destroy()
+        normalized_inputs = self.retrieve_normalized_inputs()
+        if normalized_inputs:
+            self.process_function(*normalized_inputs)
+            self.destroy()
 
     def _validate_entries(self, ip_address, device_name, username, password):
         return  # todo validation logic
