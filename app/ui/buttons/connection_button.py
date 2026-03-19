@@ -1,84 +1,137 @@
-# Standard imports
 import customtkinter as ctk
 import tkinter as tk
 import threading
-import os
-
-# Local application imports
-from app.ui.menus.SSH_action_menu import SSHActionMenu
 
 
 class ConnectionButton(ctk.CTkFrame):
-    def __init__(self, parent, app, ip_address, connection_buttons):
-        self._parent = parent
+    def __init__(self, parent, app, ip_address, online_status):
+        super().__init__(parent, height=50, fg_color="gray21", corner_radius=1)
+
         self._app = app
         self.ip_address = ip_address
-        self.connection_buttons = connection_buttons
+        self.online_status = online_status
 
-        super().__init__(self._parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        # Layout config
+        self.grid_columnconfigure(2, weight=1)  # middle expands
 
-        ip_address, device_name, username, password = self.device_info
+        self.build_widget()
 
-        # Device name title
-        device_name_label = ctk.CTkLabel(
-            self, text=device_name, font=("Arial", 10, "bold"), fg_color="transparent",
-            bg_color="transparent", text_color="white"
-        )
-        device_name_label.pack(pady=5)
-        device_name_label.place(relx=0.05, rely=0.13, anchor=tk.W)
-
-        # Delete device button
-        delete_connection = ctk.CTkButton(
-            self, text="X", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
-            text_color="red", corner_radius=0, command=self.delete_device)
-        delete_connection.pack(pady=5)
-        delete_connection.place(relx =0.02, rely=0.13, anchor=tk.CENTER)
-
-        # Tells user device is on online
-        self.status_label = ctk.CTkLabel(
-            self, text="Wait...", font=("Arial", 10), fg_color="transparent",
-            bg_color="transparent", text_color="green"
-        )
-        self.status_label.pack(pady=5)
-        self.status_label.place(relx=0.85, rely=0.229, anchor=tk.W)
-
-        menu = SSHActionMenu(self, self._app, self.ip_address)
-        menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
-
-        self.update_online_status()
-
-    def update_online_status(self):
-        if self.ping():
-            self.online_appearance()
+    def build_widget(self):
+        if self.online_status:
+            self.online_connection_widget()
         else:
-            self.offline_appearance()
+            self.offline_connection_widget()
 
-    def ping(self):
-        response = os.system(f"ping -n 1 {self.ip_address}")
+    # =========================
+    # ONLINE
+    # =========================
+    def online_connection_widget(self):
+        device_name = self._app.database.get_field_by_ip(self.ip_address, "device_name")
+        username = self._app.database.get_field_by_ip(self.ip_address, "username")
+        password = self._app.database.get_field_by_ip(self.ip_address, "password")
 
-        if response == 0:
-            print(f"{self.ip_address} is reachable")
-            return True
-        else:
-            print(f"{self.ip_address} is not reachable ({response})")
-            return False
+        # Delete button (left)
+        delete_btn = ctk.CTkButton(
+            self,
+            text="X",
+            width=20,
+            height=20,
+            fg_color="transparent",
+            hover_color="gainsboro",
+            text_color="red",
+            command=lambda: delete_device(self, self.ip_address)
+        )
+        delete_btn.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-    @property
-    def device_info(self):
-        return self._app.database.get_device_info_by_ip(self.ip_address)
+        # Device name
+        name_label = ctk.CTkLabel(
+            self,
+            text=device_name,
+            font=("Arial", 10, "bold"),
+            text_color="white"
+        )
+        name_label.grid(row=0, column=1, sticky="w")
 
-    def online_appearance(self):
-        self.status_label.configure(text='● Online')
+        # Status
+        status_label = ctk.CTkLabel(
+            self,
+            text="● Online",
+            text_color="green",
+            font=("Arial", 10)
+        )
+        status_label.grid(row=0, column=2, sticky="e", padx=5)
 
-    def offline_appearance(self):
-        self.status_label.configure(text='● Offline')
+        # IP label (below name)
+        ip_label = ctk.CTkLabel(self, text=self.ip_address)
+        ip_label.grid(row=1, column=1, sticky="w")
 
-    def destroy(self):
-        if self in self.connection_buttons:
-            self.connection_buttons.remove(self)
-        super().destroy()
+        # Menu (right)
+        menu_btn = tk.Menubutton(
+            self,
+            text="⋯",
+            font=("Arial", 16),
+            bg="gray21",
+            fg="white",
+            relief="flat",
+            bd=0
+        )
+        menu_btn.grid(row=0, column=3, rowspan=2, sticky="e", padx=5)
 
-    def delete_device(self):
-        print(f'Deleted device {self._app.database.get_field_by_ip(self.ip_address, 'device_name')}@{self.ip_address}')
-        self._app.database.delete_device_by_ip(self.ip_address)
-        self.destroy()
+        menu = tk.Menu(menu_btn, tearoff=0, bg="gray10", fg="white")
+        menu_btn["menu"] = menu
+
+        menu.add_command(
+            label="Reboot",
+            command=lambda: reboot(self.ip_address, username, password)
+        )
+        menu.add_command(
+            label="Shutdown",
+            command=lambda: shutdown(self.ip_address, username, password)
+        )
+        menu.add_command(
+            label="SSH",
+            command=lambda: threading.Thread(
+                target=lambda: ssh(username, self.ip_address)
+            ).start()
+        )
+
+    # =========================
+    # OFFLINE
+    # =========================
+    def offline_connection_widget(self):
+        device_name = self._app.database.get_field_by_ip(self.ip_address, "device_name")
+
+        # Delete button
+        delete_btn = ctk.CTkButton(
+            self,
+            text="X",
+            width=20,
+            height=20,
+            fg_color="transparent",
+            hover_color="gainsboro",
+            text_color="red",
+            command=lambda: delete_device(self, self.ip_address)
+        )
+        delete_btn.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        # Name
+        name_label = ctk.CTkLabel(
+            self,
+            text=device_name,
+            font=("Arial", 10, "bold"),
+            text_color="white"
+        )
+        name_label.grid(row=0, column=1, sticky="w")
+
+        # Status
+        status_label = ctk.CTkLabel(
+            self,
+            text="● Offline",
+            text_color="red",
+            font=("Arial", 10)
+        )
+        status_label.grid(row=0, column=2, sticky="e", padx=5)
+
+        # IP
+        ip_label = ctk.CTkLabel(self, text=self.ip_address)
+        ip_label.grid(row=1, column=1, sticky="w")

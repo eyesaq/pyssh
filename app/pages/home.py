@@ -15,24 +15,48 @@ class HomePage(ctk.CTkFrame):
 
         self.connection_buttons = []
 
-        # -- Add Device button --
-        add_device_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent",
-                                                    fg_color="gray21", corner_radius=1)
-        add_device_frame.pack(pady=5)
-        add_device_frame.pack_propagate(False)
+        # Make frame expandable
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
-        add_device_button = ctk.CTkButton(add_device_frame, text="+",
-                                                      font=("Arial", 25, "bold"), height=30, width=30,
-                                                      command=self.on_add_device, bg_color="transparent",
-                                                      fg_color="royalblue", hover_color="royalblue4", corner_radius=5)
-        add_device_button.pack(pady=10)
-        add_device_button.place(relx=0.08, rely=0.5, anchor=tk.CENTER)
+        # -- Add Device frame --
+        add_device_frame = ctk.CTkFrame(
+            self,
+            height=50,
+            fg_color="gray21",
+            corner_radius=1
+        )
+        add_device_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=10,)
+        add_device_frame.grid_columnconfigure(1, weight=1)
 
-        add_device_label = ctk.CTkLabel(add_device_frame, text="Add Device",
-                                                    font=("Arial", 20, "bold"), fg_color="transparent",
-                                                    bg_color="transparent", text_color="white")
-        add_device_label.pack(pady=10)
-        add_device_label.place(relx=0.3, rely=0.5, anchor=tk.CENTER)
+        # Button "+"
+        add_device_button = ctk.CTkButton(
+            add_device_frame,
+            text="+",
+            font=("Arial", 25, "bold"),
+            height=30,
+            width=30,
+            command=self.on_add_device,
+            fg_color="royalblue",
+            hover_color="royalblue4",
+            corner_radius=5
+        )
+        add_device_button.grid(row=0, column=0, padx=10, pady=10)
+
+        # Label
+        add_device_label = ctk.CTkLabel(
+            add_device_frame,
+            text="Add Device",
+            font=("Arial", 20, "bold"),
+            text_color="white"
+        )
+        add_device_label.grid(row=0, column=1, sticky="w", padx=10)
+
+        # -- Scrollable device container --
+        self.device_container = ctk.CTkScrollableFrame(self, corner_radius=1,)
+        self.device_container.grid(row=1, column=0, sticky="nsew", padx=10, pady=(0, 10))
+
+        self.device_container.grid_columnconfigure(0, weight=1)
 
         self._init_buttons()
 
@@ -44,8 +68,21 @@ class HomePage(ctk.CTkFrame):
             self.create_connection_button(ip_address)
 
     def create_connection_button(self, ip_address: str):
-        connection_button = ConnectionButton(self, self._app, ip_address, self.connection_buttons)
-        connection_button.pack(pady=5)
-        connection_button.pack_propagate(False)
+        connection_button = ConnectionButton(
+            self.device_container,
+            self._app,
+            ip_address,
+            self.connection_buttons
+        )
+
+        row_index = len(self.connection_buttons)
+
+        connection_button.grid(
+            row=row_index,
+            column=0,
+            sticky="ew",
+            padx=5,
+            pady=5
+        )
 
         self.connection_buttons.append(connection_button)
