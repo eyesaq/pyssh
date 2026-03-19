@@ -40,6 +40,9 @@ class SSHActionMenu(tk.Menubutton):
             print(f"Failed to connect to {ip_address}\n{e}")
 
     def reboot(self):
+        threading.Thread(target=self._reboot_thread).start()
+        
+    def _reboot_thread(self):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -57,6 +60,9 @@ class SSHActionMenu(tk.Menubutton):
         print(f'\n\'{device_name}\'@{ip_address} reboot operation ended\n')
 
     def shutdown(self):
+        threading.Thread(target=self._shutdown_thread).start()
+
+    def _shutdown_thread(self):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -72,3 +78,7 @@ class SSHActionMenu(tk.Menubutton):
             print(line.strip())
 
         print(f'\n\'{device_name}\'@{ip_address} shut down operation ended\n')
+
+
+    
+
