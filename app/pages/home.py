@@ -34,8 +34,9 @@ class HomePage(ctk.CTkFrame):
         add_device_label.pack(pady=10)
         add_device_label.place(relx=0.3, rely=0.5, anchor=tk.CENTER)
 
-        self.device_container = ctk.CTkScrollableFrame(self)
-        self.device_container.pack(pady=10, fill="both", expand=True)
+
+        self.devices_scroll_frame = ctk.CTkScrollableFrame(self)
+        self.devices_scroll_frame.pack(pady=10, fill="both", expand=True)
 
         self._init_buttons()
 
@@ -47,7 +48,7 @@ class HomePage(ctk.CTkFrame):
             self.create_connection_button(ip_address)
 
     def create_connection_button(self, ip_address: str):
-        connection_button = ConnectionButton(self.device_container, self._app, ip_address, self.connection_buttons)
+        connection_button = ConnectionButton(self.devices_scroll_frame, self._app, ip_address, self.connection_buttons)
         connection_button.pack(pady=5, fill="x", expand=True)
         connection_button.pack_propagate(False)
 
