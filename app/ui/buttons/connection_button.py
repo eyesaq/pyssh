@@ -1,8 +1,9 @@
 # Standard imports
 import customtkinter as ctk
 import tkinter as tk
-import threading
 import os
+import time
+import threading
 
 # Local application imports
 from app.ui.menus.SSH_action_menu import SSHActionMenu
@@ -14,6 +15,9 @@ class ConnectionButton(ctk.CTkFrame):
         self._app = app
         self.ip_address = ip_address
         self.connection_buttons = connection_buttons
+
+        # Pause or continue the status update loop.
+        self.status_loop_running = True
 
         super().__init__(self._parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
 
@@ -34,7 +38,7 @@ class ConnectionButton(ctk.CTkFrame):
         delete_connection.pack(pady=5)
         delete_connection.place(relx =0.02, rely=0.13, anchor=tk.CENTER)
 
-        # Tells user device is on online
+        # Online/offline status label
         self.status_label = ctk.CTkLabel(
             self, text="Wait...", font=("Arial", 10), fg_color="transparent",
             bg_color="transparent", text_color="green"
@@ -42,10 +46,17 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.pack(pady=5)
         self.status_label.place(relx=0.85, rely=0.229, anchor=tk.W)
 
+        # SSH Commands menu.
         menu = SSHActionMenu(self, self._app, self.ip_address)
         menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
 
-        self.update_online_status()
+        threading.Thread(target=self.status_update_loop).start()
+
+    def status_update_loop(self):
+        while True:
+            if self.status_loop_running:
+                self.update_online_status()
+                time.sleep(5)
 
     def update_online_status(self):
         if self.ping():
