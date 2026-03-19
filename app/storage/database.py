@@ -63,6 +63,15 @@ class Database:
 
         return row
 
+    def get_all_ip_addresses(self) -> list[str]:
+        """Return a list of all IP addresses in the database."""
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT ip_address FROM connections"
+            ).fetchall()
+
+        return [row[0] for row in rows]
+
     def add_connection(
             self,
             ip_address: str,
