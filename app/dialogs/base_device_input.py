@@ -4,9 +4,8 @@ import tkinter as tk
 from typing import Callable
 
 class BaseDeviceInput(ctk.CTkToplevel):
-    def __init__(self, parent, app, on_completion_function: Callable, title: str):
+    def __init__(self, parent, on_completion_function: Callable, title: str):
         self._parent = parent
-        self._app = app
         self.process_function = on_completion_function
 
         super().__init__(self._parent)
