@@ -49,6 +49,20 @@ class Database:
 
         return row[0] if row else None
 
+    def get_device_info_by_ip(self, ip_address: str) -> tuple | None:
+        """Return the full row for a given IP address as a tuple."""
+        with self._connect() as conn:
+            row = conn.execute(
+                """
+                SELECT ip_address, device_name, username, password
+                FROM connections
+                WHERE ip_address = ?
+                """,
+                (ip_address,),
+            ).fetchone()
+
+        return row
+
     def add_connection(
             self,
             ip_address: str,
