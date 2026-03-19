@@ -44,7 +44,7 @@ class ConnectionButton(ctk.CTkFrame):
         delete_connection.place(relx =0.05, rely=0.13, anchor=tk.CENTER)
 
         # SSH Commands menu
-        menu = SSHActionMenu(self, self._app, self.ip_address)
+        menu = SSHActionMenu(self, self._app)
         menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
 
         # Online/offline status label
