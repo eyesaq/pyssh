@@ -1,12 +1,13 @@
 # Standard imports
 import customtkinter as ctk
 import tkinter as tk
-from typing import Callable
+from typing import Callable, Optional
 
 class BaseDeviceInput(ctk.CTkToplevel):
-    def __init__(self, parent, on_completion_function: Callable, title: str):
+    def __init__(self, parent, on_completion_function: Callable, title: str, defaults: Optional[dict] = None):
         self._parent = parent
         self.process_function = on_completion_function
+        self.defaults = defaults or {}
 
         super().__init__(self._parent)
 
@@ -30,37 +31,29 @@ class BaseDeviceInput(ctk.CTkToplevel):
         header_label.pack(pady=20)
         header_label.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
 
-        # -- IP Address entry field --
-        self.ip_address_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="ip address",
-            placeholder_text_color="gray50", corner_radius=5
-        )
-        self.ip_address_entry.pack(pady=10)
-        self.ip_address_entry.place(relx=0.5, rely=0.37, anchor=tk.CENTER)
+        # IP Address
+        self.ip_address_entry = ctk.CTkEntry(...)
+        self.ip_address_entry.place(...)
+        if "ip_address" in self.defaults:
+            self.ip_address_entry.insert(0, self.defaults["ip_address"])
 
-        # -- Device Name entry field --
-        self.device_name_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="device name",
-            placeholder_text_color="gray50", corner_radius=5
-        )
-        self.device_name_entry.pack(pady=10)
-        self.device_name_entry.place(relx=0.5, rely=0.24, anchor=tk.CENTER)
+        # Device Name
+        self.device_name_entry = ctk.CTkEntry(...)
+        self.device_name_entry.place(...)
+        if "device_name" in self.defaults:
+            self.device_name_entry.insert(0, self.defaults["device_name"])
 
-        # -- Username entry field --
-        self.username_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="username",
-            placeholder_text_color="gray50", corner_radius=5
-        )
-        self.username_entry.pack(pady=10)
-        self.username_entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        # Username
+        self.username_entry = ctk.CTkEntry(...)
+        self.username_entry.place(...)
+        if "username" in self.defaults:
+            self.username_entry.insert(0, self.defaults["username"])
 
-        # -- Password entry field --
-        self.password_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="password",
-            placeholder_text_color="gray50", corner_radius=5
-        )
-        self.password_entry.pack(pady=10)
-        self.password_entry.place(relx=0.5, rely=0.63, anchor=tk.CENTER)
+        # Password
+        self.password_entry = ctk.CTkEntry(...)
+        self.password_entry.place(...)
+        if "password" in self.defaults:
+            self.password_entry.insert(0, self.defaults["password"])
 
         # -- Completion button --
         self.variable_button = ctk.CTkButton(
