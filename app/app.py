@@ -18,6 +18,8 @@ class App(tk.CTk):
 
         self.container = tk.CTkFrame(self)
         self.container.pack(fill="both", expand=True)
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
 
         self.pages = {}
         self.show_page(HomePage)
