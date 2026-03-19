@@ -1,10 +1,10 @@
 # Standard imports
 import customtkinter as ctk
 import tkinter as tk
-import os
 
 # Local application imports
 from app.dialogs.add_device import AddDeviceDialog
+from app.ui.buttons.connection_button import ConnectionButton
 
 class HomePage(ctk.CTkFrame):
     def __init__(self, parent, app):
@@ -12,6 +12,8 @@ class HomePage(ctk.CTkFrame):
         self._app = app
 
         super().__init__(self._parent)
+
+        self.connection_buttons = []
 
         # -- Add Device button --
         add_device_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent",
@@ -35,26 +37,15 @@ class HomePage(ctk.CTkFrame):
         self._init_buttons()
 
     def on_add_device(self):
-        AddDeviceDialog(self, self._app, self.on_connection_creation)
-
-    def on_connection_creation(self, connection):
-        # todo create button for the device
-        self.create_connection_button(connection)
-        pass
+        AddDeviceDialog(self, self._app, self.create_connection_button)
 
     def _init_buttons(self):
-        connections = self._app.database.get_all_connections()
-        for connection in connections:
-            self.create_connection_button(connection)
+        for ip_address in self._app.database.get_all_ip_addresses():
+            self.create_connection_button(ip_address)
 
-    def create_connection_button(self, connection: dict):
-        # find the IP corresponding to this device match by index in devices.json
-        ip = connection['ip_address']
+    def create_connection_button(self, ip_address: str):
+        connection_button = ConnectionButton(self, self._app, ip_address, self.connection_buttons)
+        connection_button.pack(pady=5)
+        connection_button.pack_propagate(False)
 
-        response = os.system(f"ping -n 1 {ip}")
-        if response == 0:
-            print(f"{ip} is reachable")
-            device_online(key)
-        else:
-            print(f"{ip} is not reachable")
-            device_offline(key)
+        self.connection_buttons.append(connection_button)

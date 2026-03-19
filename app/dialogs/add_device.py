@@ -96,7 +96,7 @@ class AddDeviceDialog(ctk.CTkToplevel):
         print(f"Saved connection: {device_name} @ {ip_address}")
 
         # todo use a connection
-        self._on_connection_creation(device_name)
+        self._on_connection_creation(ip_address)
 
         self.destroy()
 
