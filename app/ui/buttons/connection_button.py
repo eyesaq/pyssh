@@ -6,6 +6,7 @@ import threading
 
 # Local application imports
 from app.ui.menus.SSH_action_menu import SSHActionMenu
+from app.dialogs.edit_device import EditDeviceDialog
 
 
 class ConnectionButton(ctk.CTkFrame):
@@ -104,5 +105,8 @@ class ConnectionButton(ctk.CTkFrame):
         self._app.database.delete_device_by_ip(self.ip_address)
         self.destroy()
 
+    def update_ip_address(self, new_ip):
+        self.ip_address = new_ip
+
     def edit_device(self):
-        pass    # todo edit device func
+        EditDeviceDialog(self, self._app, self.ip_address, self.update_ip_address)
