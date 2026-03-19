@@ -37,7 +37,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
             placeholder_text_color="gray50", corner_radius=5
         )
         self.ip_address_entry.pack(pady=10)
-        self.ip_address_entry.place(relx=0.5, rely=0.37, anchor=tk.CENTER)
+        self.ip_address_entry.place(relx=0.5, rely=0.24, anchor=tk.CENTER)
         if "ip_address" in self.defaults:
             self.ip_address_entry.insert(0, self.defaults["ip_address"])
 
@@ -47,7 +47,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
             placeholder_text_color="gray50", corner_radius=5
         )
         self.device_name_entry.pack(pady=10)
-        self.device_name_entry.place(relx=0.5, rely=0.24, anchor=tk.CENTER)
+        self.device_name_entry.place(relx=0.5, rely=0.37, anchor=tk.CENTER)
         if "device_name" in self.defaults:
             self.device_name_entry.insert(0, self.defaults["device_name"])
 
