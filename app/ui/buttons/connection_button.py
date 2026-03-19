@@ -1,7 +1,6 @@
 # Standard imports
 import customtkinter as ctk
 import tkinter as tk
-import threading
 import os
 
 # Local application imports
