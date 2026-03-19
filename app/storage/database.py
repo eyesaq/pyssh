@@ -115,3 +115,11 @@ class Database:
 
         # Recreate the database with the schema
         self._init_database()
+
+    def delete_by_ip(self, ip_address: str) -> None:
+        """Delete a connection record by its IP address."""
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM connections WHERE ip_address = ?",
+                (ip_address,),
+            )
