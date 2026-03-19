@@ -15,9 +15,6 @@ class ConnectionButton(ctk.CTkFrame):
         self.ip_address = ip_address
         self.connection_buttons = connection_buttons
 
-        # Pause or continue the status update loop.
-        self.status_loop_running = True
-
         super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
 
         ip_address, device_name, username, password = self.device_info
@@ -37,11 +34,11 @@ class ConnectionButton(ctk.CTkFrame):
         delete_connection.pack(pady=5)
         delete_connection.place(relx =0.01, rely=0.13, anchor=tk.CENTER)
 
-        # SSH Commands menu.
+        # SSH Commands menu
         menu = SSHActionMenu(self, self._app, self.ip_address)
         menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
 
-         # Online/offline status label
+        # Online/offline status label
         self.status_label = ctk.CTkLabel(
             self, text="Loading...", font=("Arial", 10), fg_color="transparent",
             bg_color="transparent", text_color="white"
@@ -49,24 +46,34 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.pack(pady=5)
         self.status_label.place(relx=0.92, rely=0.229, anchor=tk.W)
 
-        #removes delay
-        self.after(1, self.status_update_loop)
+        # Kick-start the update loop
+        self._run_status_loop = True
+        self.after(0, self.status_update_loop)
+
+    @property
+    def run_status_loop(self):
+        return self._run_status_loop
+
+    @run_status_loop.setter
+    def run_status_loop(self, running: bool):
+        """Pause/Resume the status update loop"""
+        was_running = self._run_status_loop
+        self._run_status_loop = running
+
+        # If the update loop wasn't running before - start it now
+        if running and not was_running:
+            self.after(0, self.status_update_loop)
 
     def status_update_loop(self):
-        if self.status_loop_running:
-            # run ping in a separate thread
+        if self._run_status_loop:
             threading.Thread(target=self._ping_and_update, daemon=True).start()
-            # schedule next update
             self.after(5000, self.status_update_loop)
 
     def _ping_and_update(self):
-        # ping the device in this thread
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
 
-        # update the GUI safely in the main thread
         self.after(0, lambda: self.online_appearance() if reachable else self.offline_appearance())
-        
 
     @property
     def device_info(self):
@@ -79,6 +86,7 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.configure(text='● Offline', text_color="red")
 
     def destroy(self):
+        self.run_status_loop = False
         if self in self.connection_buttons:
             self.connection_buttons.remove(self)
         super().destroy()
