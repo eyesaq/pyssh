@@ -34,6 +34,14 @@ class ConnectionButton(ctk.CTkFrame):
         delete_connection.pack(pady=5)
         delete_connection.place(relx =0.01, rely=0.13, anchor=tk.CENTER)
 
+        # todo improve gui
+        # Edit device button
+        delete_connection = ctk.CTkButton(
+            self, text="Edit", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
+            text_color="blue", corner_radius=0, command=self.edit_device)
+        delete_connection.pack(pady=5)
+        delete_connection.place(relx =0.05, rely=0.13, anchor=tk.CENTER)
+
         # SSH Commands menu
         menu = SSHActionMenu(self, self._app, self.ip_address)
         menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
@@ -95,3 +103,6 @@ class ConnectionButton(ctk.CTkFrame):
         print(f'Deleted device {self._app.database.get_field_by_ip(self.ip_address, 'device_name')}@{self.ip_address}')
         self._app.database.delete_device_by_ip(self.ip_address)
         self.destroy()
+
+    def edit_device(self):
+        pass    # todo edit device func
