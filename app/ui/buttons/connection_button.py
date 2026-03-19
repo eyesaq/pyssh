@@ -2,6 +2,7 @@
 import customtkinter as ctk
 import tkinter as tk
 import os
+import threading
 
 # Local application imports
 from app.ui.menus.SSH_action_menu import SSHActionMenu
@@ -48,27 +49,24 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.pack(pady=5)
         self.status_label.place(relx=0.92, rely=0.229, anchor=tk.W)
 
-        self.after(5000, self.status_update_loop)
+        #removes delay
+        self.after(1, self.status_update_loop)
 
     def status_update_loop(self):
-            if self.status_loop_running:
-                self.update_online_status()
+        if self.status_loop_running:
+            # run ping in a separate thread
+            threading.Thread(target=self._ping_and_update, daemon=True).start()
+            # schedule next update
+            self.after(5000, self.status_update_loop)
 
-    def update_online_status(self):
-        if self.ping():
-            self.online_appearance()
-        else:
-            self.offline_appearance()
+    def _ping_and_update(self):
+        # ping the device in this thread
+        response = os.system(f"ping -n 1 {self.ip_address} >nul")
+        reachable = response == 0
 
-    def ping(self):
-        response = os.system(f"ping -n 1 {self.ip_address}")
-
-        if response == 0:
-            print(f"{self.ip_address} is reachable")
-            return True
-        else:
-            print(f"{self.ip_address} is not reachable ({response})")
-            return False
+        # update the GUI safely in the main thread
+        self.after(0, lambda: self.online_appearance() if reachable else self.offline_appearance())
+        
 
     @property
     def device_info(self):
