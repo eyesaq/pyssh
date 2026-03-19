@@ -2,8 +2,6 @@
 import customtkinter as ctk
 import tkinter as tk
 import os
-import time
-import threading
 
 # Local application imports
 from app.ui.menus.SSH_action_menu import SSHActionMenu
@@ -19,7 +17,7 @@ class ConnectionButton(ctk.CTkFrame):
         # Pause or continue the status update loop.
         self.status_loop_running = True
 
-        super().__init__(self._parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
 
         ip_address, device_name, username, password = self.device_info
 
@@ -28,35 +26,33 @@ class ConnectionButton(ctk.CTkFrame):
             self, text=device_name, font=("Arial", 10, "bold"), fg_color="transparent",
             bg_color="transparent", text_color="white"
         )
-        device_name_label.pack(pady=5)
-        device_name_label.place(relx=0.05, rely=0.13, anchor=tk.W)
+        device_name_label.pack(side="left", pady=5)
+        device_name_label.place(relx=0.02, rely=0.13, anchor=tk.W)
 
         # Delete device button
         delete_connection = ctk.CTkButton(
             self, text="X", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
             text_color="red", corner_radius=0, command=self.delete_device)
         delete_connection.pack(pady=5)
-        delete_connection.place(relx =0.02, rely=0.13, anchor=tk.CENTER)
-
-        # Online/offline status label
-        self.status_label = ctk.CTkLabel(
-            self, text="Wait...", font=("Arial", 10), fg_color="transparent",
-            bg_color="transparent", text_color="green"
-        )
-        self.status_label.pack(pady=5)
-        self.status_label.place(relx=0.85, rely=0.229, anchor=tk.W)
+        delete_connection.place(relx =0.01, rely=0.13, anchor=tk.CENTER)
 
         # SSH Commands menu.
         menu = SSHActionMenu(self, self._app, self.ip_address)
         menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
 
-        threading.Thread(target=self.status_update_loop).start()
+         # Online/offline status label
+        self.status_label = ctk.CTkLabel(
+            self, text="Loading...", font=("Arial", 10), fg_color="transparent",
+            bg_color="transparent", text_color="white"
+        )
+        self.status_label.pack(pady=5)
+        self.status_label.place(relx=0.92, rely=0.229, anchor=tk.W)
+
+        self.after(5000, self.status_update_loop)
 
     def status_update_loop(self):
-        while True:
             if self.status_loop_running:
                 self.update_online_status()
-                time.sleep(5)
 
     def update_online_status(self):
         if self.ping():
@@ -79,10 +75,10 @@ class ConnectionButton(ctk.CTkFrame):
         return self._app.database.get_device_info_by_ip(self.ip_address)
 
     def online_appearance(self):
-        self.status_label.configure(text='● Online')
+        self.status_label.configure(text='● Online', text_color="green")
 
     def offline_appearance(self):
-        self.status_label.configure(text='● Offline')
+        self.status_label.configure(text='● Offline', text_color="red")
 
     def destroy(self):
         if self in self.connection_buttons:
