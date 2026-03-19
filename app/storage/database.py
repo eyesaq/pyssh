@@ -84,3 +84,11 @@ class Database:
             ).fetchall()
 
         return [dict(row) for row in rows]
+
+    def recreate_database_file(self) -> None:
+        """Completely delete the database file and recreate a fresh one."""
+        if self._db_path.exists():
+            self._db_path.unlink()  # Delete the file
+
+        # Recreate the database with the schema
+        self._init_database()
