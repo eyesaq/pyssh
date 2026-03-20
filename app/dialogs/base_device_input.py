@@ -101,11 +101,8 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         # Bind navigation keys
         for idx, field in enumerate(self._fields):
-            # Enter key
             field.bind("<Return>", lambda e, i=idx: self._on_enter(i))
-            # Down arrow
             field.bind("<Down>", lambda e, i=idx: self._focus_next(i))
-            # Up arrow
             field.bind("<Up>", lambda e, i=idx: self._focus_prev(i))
 
     def retrieve_normalized_inputs(self):
