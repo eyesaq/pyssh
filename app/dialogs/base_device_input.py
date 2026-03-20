@@ -13,6 +13,9 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         self.title(title)
         self.geometry("250x350")
+        self.lift()
+        self.focus_force()
+        self.grab_set()
 
         # -- Main container --
         container_frame = ctk.CTkFrame(
