@@ -41,6 +41,16 @@ class HomePage(ctk.CTkFrame):
 
         self._init_buttons()
 
+        self.after(10, self._init_ux)
+
+    def _init_ux(self):
+        # Focus the frame so it can receive key events
+        self.focus_set()
+
+        # Bind "a" and "A" to Add Device
+        self._app.bind("<a>", lambda e: self.on_add_device())
+        self._app.bind("<A>", lambda e: self.on_add_device())
+
     def on_add_device(self):
         AddDeviceDialog(self, self._app, self.create_connection_button)
 
