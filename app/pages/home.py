@@ -83,6 +83,7 @@ class HomePage(ctk.CTkFrame):
             self.devices_scroll_frame,
             self._app,
             ip_address,
+            self.remove_connection_button,
             ping_log=ping_log
         )
         connection_button.pack(pady=5, fill="x", expand=True)

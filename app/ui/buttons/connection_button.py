@@ -12,10 +12,11 @@ from app.config import PING_INTERVAL
 
 
 class ConnectionButton(ctk.CTkFrame):
-    def __init__(self, parent, app, ip_address, ping_log=False):
+    def __init__(self, parent, app, ip_address, on_remove_connection_button_function, ping_log=False):
         self._parent = parent
         self._app = app
         self.ip_address = ip_address
+        self.remove_connection_button = on_remove_connection_button_function
         self.ping_log = ping_log
 
         super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
@@ -57,6 +58,8 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.pack(pady=5)
         self.status_label.place(relx=0.92, rely=0.229, anchor=tk.W)
 
+        self.fade_in()
+
         # Kick-start the update loop
         self._run_status_loop = True
         self.after(0, self.status_update_loop)
@@ -74,6 +77,28 @@ class ConnectionButton(ctk.CTkFrame):
         # If the update loop wasn't running before - start it now
         if running and not was_running:
             self.after(0, self.status_update_loop)
+
+    def fade_in(self, steps=12, delay=20):
+        """Fade in the button by animating its fg_color brightness."""
+        # Start almost invisible
+        self._fade_step = 0
+
+        def _animate():
+            if self._fade_step <= steps:
+                # Compute brightness from 0 → 1
+                t = self._fade_step / steps
+                # Interpolate between dark gray and your target color
+                r = int(33 + (33 - 33) * t)  # stays gray21-ish
+                g = int(33 + (33 - 33) * t)
+                b = int(33 + (33 - 33) * t)
+
+                # Apply color
+                self.configure(fg_color=f"#{r:02x}{g:02x}{b:02x}")
+
+                self._fade_step += 1
+                self.after(delay, _animate)
+
+        _animate()
 
     def status_update_loop(self):
         if self._run_status_loop:
@@ -103,7 +128,7 @@ class ConnectionButton(ctk.CTkFrame):
 
     def destroy(self):
         self.run_status_loop = False
-        self._parent.remove_connection_button(self)
+        self.remove_connection_button(self)
         super().destroy()
 
     def delete_device(self):
