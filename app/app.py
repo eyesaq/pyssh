@@ -12,6 +12,7 @@ class App(tk.CTk):
         super().__init__()
         self.title("PySSH")
         self.geometry("800x600")
+        self.lift()
 
         self.user_data_dir = UserDataDir()
         self.database = Database(self.user_data_dir)

@@ -44,10 +44,10 @@ class HomePage(ctk.CTkFrame):
         self.after(10, self._init_ux)
 
     def _init_ux(self):
-        # Focus the frame so it can receive key events
+        # --- Focus ---
         self.focus_set()
 
-        # Bind "a" and "A" to Add Device
+        # --- Add Device Shortcut ---
         self._app.bind("<a>", lambda e: self.on_add_device())
         self._app.bind("<A>", lambda e: self.on_add_device())
 
