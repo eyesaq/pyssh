@@ -40,11 +40,11 @@ class ConnectionButton(ctk.CTkFrame):
 
         # todo improve edit button
         # Edit device button
-        delete_connection = ctk.CTkButton(
-            self, text="Edit", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
+        edit_connection = ctk.CTkButton(
+            self, text="✏️", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
             text_color="blue", corner_radius=0, command=self.edit_device)
-        delete_connection.pack(pady=5)
-        delete_connection.place(relx =0.05, rely=0.13, anchor=tk.CENTER)
+        edit_connection.pack(pady=10)
+        edit_connection.place(relx =0.05, rely=0.23, anchor=tk.CENTER)
 
         # SSH Commands menu
         menu = SSHActionMenu(self, self._app)
