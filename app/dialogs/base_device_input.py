@@ -13,9 +13,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         self.title(title)
         self.geometry("250x350")
-        self.lift()
-        self.focus_force()
-        self.grab_set()
 
         # -- Main container --
         container_frame = ctk.CTkFrame(
@@ -83,6 +80,35 @@ class BaseDeviceInput(ctk.CTkToplevel):
         self.variable_button.pack(pady=10)
         self.variable_button.place(relx=0.5, rely=0.76, anchor=tk.CENTER)
 
+        self._init_ux()
+
+    def _init_ux(self):
+        # --- Focus and modal behavior ---
+        self.lift()
+        self.focus_force()
+        self.grab_set()
+
+        # --- Field order for keyboard navigation ---
+        self._fields = [
+            self.ip_address_entry,
+            self.device_name_entry,
+            self.username_entry,
+            self.password_entry,
+        ]
+
+        # Start focused on the first field
+        self.ip_address_entry.focus()
+
+        # Bind navigation keys
+        for idx, field in enumerate(self._fields):
+            # Enter key
+            field.bind("<Return>", lambda e, i=idx: self._on_enter(i))
+            # Down arrow
+            field.bind("<Down>", lambda e, i=idx: self._focus_next(i))
+            # Up arrow
+            field.bind("<Up>", lambda e, i=idx: self._focus_prev(i))
+
+
     def retrieve_normalized_inputs(self):
         # Retrieve inputs
         ip_address = self.ip_address_entry.get()
@@ -115,3 +141,21 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
     def _validate_entries(self, ip_address, device_name, username, password):
         return  # todo validation logic
+
+    def _focus_next(self, index):
+        if index < len(self._fields) - 1:
+            self._fields[index + 1].focus()
+        else:
+            # Last field → press button
+            self.variable_button.invoke()
+
+    def _focus_prev(self, index):
+        if index > 0:
+            self._fields[index - 1].focus()
+
+    def _on_enter(self, index):
+        if index < len(self._fields) - 1:
+            self._fields[index + 1].focus()
+        else:
+            # Last field → press button
+            self.variable_button.invoke()
