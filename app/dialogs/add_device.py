@@ -14,6 +14,6 @@ class AddDeviceDialog(BaseDeviceInput):
 
     def save_device(self, ip_address, device_name, username, password):
         self._app.database.add_connection(ip_address, device_name, username, password)
-        print(f"Saved connection: {device_name} @ {ip_address}")
+        print(f"Saved connection: {device_name}@{ip_address}")
 
         self._on_connection_creation(ip_address)
