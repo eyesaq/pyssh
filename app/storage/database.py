@@ -110,14 +110,22 @@ class Database:
 
     def update_device_by_ip(
             self,
-            ip_address: str,
+            old_ip: str,
+            new_ip: str | None = None,
             device_name: str | None = None,
             username: str | None = None,
             password: str | None = None,
     ) -> None:
-        """Update one or more fields for a device identified by its IP address."""
+        """
+        Update one or more fields for a device identified by its old IP address.
+        Allows changing the IP address itself.
+        """
         updates = []
         params = []
+
+        if new_ip is not None:
+            updates.append("ip_address = ?")
+            params.append(new_ip)
 
         if device_name is not None:
             updates.append("device_name = ?")
@@ -134,7 +142,7 @@ class Database:
         if not updates:
             return  # nothing to update
 
-        params.append(ip_address)
+        params.append(old_ip)
 
         with self._connect() as conn:
             conn.execute(

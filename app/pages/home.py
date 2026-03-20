@@ -5,6 +5,7 @@ import tkinter as tk
 # Local application imports
 from app.dialogs.add_device import AddDeviceDialog
 from app.ui.buttons.connection_button import ConnectionButton
+from app.config import PING_LOG
 
 class HomePage(ctk.CTkFrame):
     def __init__(self, parent, app):
@@ -45,10 +46,16 @@ class HomePage(ctk.CTkFrame):
 
     def _init_buttons(self):
         for ip_address in self._app.database.get_all_ip_addresses():
-            self.create_connection_button(ip_address)
+            self.create_connection_button(ip_address, ping_log=PING_LOG)
 
-    def create_connection_button(self, ip_address: str):
-        connection_button = ConnectionButton(self.devices_scroll_frame, self._app, ip_address, self.connection_buttons)
+    def create_connection_button(self, ip_address: str, ping_log=False):
+        connection_button = ConnectionButton(
+            self.devices_scroll_frame,
+            self._app,
+            ip_address,
+            self.connection_buttons,
+            ping_log=ping_log
+        )
         connection_button.pack(pady=5, fill="x", expand=True)
         connection_button.pack_propagate(False)
 
