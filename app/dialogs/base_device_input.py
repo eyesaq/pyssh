@@ -80,7 +80,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
         self.variable_button.pack(pady=10)
         self.variable_button.place(relx=0.5, rely=0.76, anchor=tk.CENTER)
 
-        self._init_ux()
+        self.after(10, self._init_ux)
 
     def _init_ux(self):
         # --- Focus and modal behavior ---
@@ -96,7 +96,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self.password_entry,
         ]
 
-        # Start focused on the first field
+        # Start focused on the IP field
         self.ip_address_entry.focus()
 
         # Bind navigation keys
@@ -107,7 +107,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
             field.bind("<Down>", lambda e, i=idx: self._focus_next(i))
             # Up arrow
             field.bind("<Up>", lambda e, i=idx: self._focus_prev(i))
-
 
     def retrieve_normalized_inputs(self):
         # Retrieve inputs
@@ -143,19 +142,18 @@ class BaseDeviceInput(ctk.CTkToplevel):
         return  # todo validation logic
 
     def _focus_next(self, index):
+        # Move down unless we're already at the last field
         if index < len(self._fields) - 1:
             self._fields[index + 1].focus()
-        else:
-            # Last field → press button
-            self.variable_button.invoke()
 
     def _focus_prev(self, index):
+        # Move up unless we're at the first field
         if index > 0:
             self._fields[index - 1].focus()
 
     def _on_enter(self, index):
+        # Enter moves down, but on the last field it submits
         if index < len(self._fields) - 1:
             self._fields[index + 1].focus()
         else:
-            # Last field → press button
             self.variable_button.invoke()
