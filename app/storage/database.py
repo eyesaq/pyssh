@@ -98,15 +98,14 @@ class Database:
                     (ip_address, device_name, username, password),
                 )
 
-    def get_all_connections(self) -> list[dict]:
-        """Retrieve all connections"""
+    def get_all_connections(self) -> list[tuple]:
+        """Retrieve all connections as a list of tuples."""
         with self._connect() as conn:
-            conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT ip_address, device_name, username, password FROM connections"
             ).fetchall()
 
-        return [dict(row) for row in rows]
+        return rows
 
     def update_device_by_ip(
             self,
