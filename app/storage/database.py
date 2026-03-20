@@ -98,15 +98,56 @@ class Database:
                     (ip_address, device_name, username, password),
                 )
 
-    def get_all_connections(self) -> list[dict]:
-        """Retrieve all connections"""
+    def get_all_connections(self) -> list[tuple]:
+        """Retrieve all connections as a list of tuples."""
         with self._connect() as conn:
-            conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT ip_address, device_name, username, password FROM connections"
             ).fetchall()
 
-        return [dict(row) for row in rows]
+        return rows
+
+    def update_device_by_ip(
+            self,
+            old_ip: str,
+            new_ip: str | None = None,
+            device_name: str | None = None,
+            username: str | None = None,
+            password: str | None = None,
+    ) -> None:
+        """
+        Update one or more fields for a device identified by its old IP address.
+        Allows changing the IP address itself.
+        """
+        updates = []
+        params = []
+
+        if new_ip is not None:
+            updates.append("ip_address = ?")
+            params.append(new_ip)
+
+        if device_name is not None:
+            updates.append("device_name = ?")
+            params.append(device_name)
+
+        if username is not None:
+            updates.append("username = ?")
+            params.append(username)
+
+        if password is not None:
+            updates.append("password = ?")
+            params.append(password)
+
+        if not updates:
+            return  # nothing to update
+
+        params.append(old_ip)
+
+        with self._connect() as conn:
+            conn.execute(
+                f"UPDATE connections SET {', '.join(updates)} WHERE ip_address = ?",
+                params,
+            )
 
     def recreate_database_file(self) -> None:
         """Completely delete the database file and recreate a fresh one."""

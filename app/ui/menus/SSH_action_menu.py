@@ -5,10 +5,9 @@ import paramiko
 import threading
 
 class SSHActionMenu(tk.Menubutton):
-    def __init__(self, parent, app, ip_address):
+    def __init__(self, parent, app):
         self.parent = parent
         self._app = app
-        self.ip_address = ip_address
 
         super().__init__(
             self.parent, text="⋯", font=("Arial", 25), bg="gray21", fg="white", activebackground="gray21",
@@ -25,7 +24,7 @@ class SSHActionMenu(tk.Menubutton):
 
     @property
     def device_info(self):
-        return self._app.database.get_device_info_by_ip(self.ip_address)
+        return self._app.database.get_device_info_by_ip(self.parent.ip_address)
 
     def start_ssh(self):
         threading.Thread(target=self._ssh_thread).start()

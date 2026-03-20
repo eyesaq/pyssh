@@ -3,29 +3,33 @@ import customtkinter as ctk
 import tkinter as tk
 import os
 import threading
+from typing import Optional
 
 # Local application imports
 from app.ui.menus.SSH_action_menu import SSHActionMenu
+from app.dialogs.edit_device import EditDeviceDialog
+from app.config import PING_INTERVAL
 
 
 class ConnectionButton(ctk.CTkFrame):
-    def __init__(self, parent, app, ip_address, connection_buttons):
+    def __init__(self, parent, app, ip_address, connection_buttons, ping_log=False):
         self._parent = parent
         self._app = app
         self.ip_address = ip_address
         self.connection_buttons = connection_buttons
+        self.ping_log = ping_log
 
         super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
 
         ip_address, device_name, username, password = self.device_info
 
         # Device name title
-        device_name_label = ctk.CTkLabel(
+        self._device_name_label = ctk.CTkLabel(
             self, text=device_name, font=("Arial", 10, "bold"), fg_color="transparent",
             bg_color="transparent", text_color="white"
         )
-        device_name_label.pack(side="left", pady=5)
-        device_name_label.place(relx=0.02, rely=0.13, anchor=tk.W)
+        self._device_name_label.pack(side="left", pady=5)
+        self._device_name_label.place(relx=0.02, rely=0.13, anchor=tk.W)
 
         # Delete device button
         delete_connection = ctk.CTkButton(
@@ -34,7 +38,7 @@ class ConnectionButton(ctk.CTkFrame):
         delete_connection.pack(pady=5)
         delete_connection.place(relx =0.01, rely=0.13, anchor=tk.CENTER)
 
-        # todo improve gui
+        # todo improve edit button
         # Edit device button
         delete_connection = ctk.CTkButton(
             self, text="Edit", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
@@ -43,7 +47,7 @@ class ConnectionButton(ctk.CTkFrame):
         delete_connection.place(relx =0.05, rely=0.13, anchor=tk.CENTER)
 
         # SSH Commands menu
-        menu = SSHActionMenu(self, self._app, self.ip_address)
+        menu = SSHActionMenu(self, self._app)
         menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
 
         # Online/offline status label
@@ -75,11 +79,16 @@ class ConnectionButton(ctk.CTkFrame):
     def status_update_loop(self):
         if self._run_status_loop:
             threading.Thread(target=self._ping_and_update, daemon=True).start()
-            self.after(5000, self.status_update_loop)
+            self.after(PING_INTERVAL, self.status_update_loop)
 
     def _ping_and_update(self):
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
+
+        if self.ping_log:
+            print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
+
+        self._device_name_label.configure(text=self._app.database.get_field_by_ip(self.ip_address, 'device_name'))
 
         self.after(0, lambda: self.online_appearance() if reachable else self.offline_appearance())
 
@@ -104,5 +113,10 @@ class ConnectionButton(ctk.CTkFrame):
         self._app.database.delete_device_by_ip(self.ip_address)
         self.destroy()
 
+    def update_button_data(self, new_ip: Optional[str] = None):
+        if new_ip:
+            self.ip_address = new_ip
+        self._ping_and_update()
+
     def edit_device(self):
-        pass    # todo edit device func
+        EditDeviceDialog(self, self._app, self.update_button_data)
