@@ -58,8 +58,6 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.pack(pady=5)
         self.status_label.place(relx=0.92, rely=0.229, anchor=tk.W)
 
-        self.fade_in()
-
         # Kick-start the update loop
         self._run_status_loop = True
         self.after(0, self.status_update_loop)
@@ -77,28 +75,6 @@ class ConnectionButton(ctk.CTkFrame):
         # If the update loop wasn't running before - start it now
         if running and not was_running:
             self.after(0, self.status_update_loop)
-
-    def fade_in(self, steps=12, delay=20):
-        """Fade in the button by animating its fg_color brightness."""
-        # Start almost invisible
-        self._fade_step = 0
-
-        def _animate():
-            if self._fade_step <= steps:
-                # Compute brightness from 0 → 1
-                t = self._fade_step / steps
-                # Interpolate between dark gray and your target color
-                r = int(33 + (33 - 33) * t)  # stays gray21-ish
-                g = int(33 + (33 - 33) * t)
-                b = int(33 + (33 - 33) * t)
-
-                # Apply color
-                self.configure(fg_color=f"#{r:02x}{g:02x}{b:02x}")
-
-                self._fade_step += 1
-                self.after(delay, _animate)
-
-        _animate()
 
     def status_update_loop(self):
         if self._run_status_loop:
