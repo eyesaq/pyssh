@@ -14,7 +14,7 @@ class HomePage(ctk.CTkFrame):
 
         super().__init__(self._parent)
 
-        self.connection_buttons = []
+        self._connection_buttons = []
 
         # -- Add Device button --
         add_device_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent",
@@ -39,6 +39,15 @@ class HomePage(ctk.CTkFrame):
         self.devices_scroll_frame = ctk.CTkScrollableFrame(self)
         self.devices_scroll_frame.pack(pady=10, fill="both", expand=True)
 
+        # --- Default no device label ---
+        self.no_devices_label = ctk.CTkLabel(
+            self.devices_scroll_frame,
+            text="No devices",
+            font=("Arial", 18, "bold"),
+            text_color="gray60"
+        )
+        self.no_devices_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
         self._init_buttons()
 
         self.after(10, self._init_ux)
@@ -51,22 +60,33 @@ class HomePage(ctk.CTkFrame):
         self._app.bind("<a>", lambda e: self.on_add_device())
         self._app.bind("<A>", lambda e: self.on_add_device())
 
-    def on_add_device(self):
-        AddDeviceDialog(self, self._app, self.create_connection_button)
-
     def _init_buttons(self):
         for ip_address in self._app.database.get_all_ip_addresses():
             self.create_connection_button(ip_address, ping_log=PING_LOG)
+
+    def remove_connection_button(self, button):
+        if button in self._connection_buttons:
+            self._connection_buttons.remove(button)
+            self._on_connection_buttons_change()
+
+    def _on_connection_buttons_change(self):
+        if len(self._connection_buttons) == 0:
+            self.no_devices_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        else:
+            self.no_devices_label.place_forget()
+
+    def on_add_device(self):
+        AddDeviceDialog(self, self._app, self.create_connection_button)
 
     def create_connection_button(self, ip_address: str, ping_log=False):
         connection_button = ConnectionButton(
             self.devices_scroll_frame,
             self._app,
             ip_address,
-            self.connection_buttons,
             ping_log=ping_log
         )
         connection_button.pack(pady=5, fill="x", expand=True)
         connection_button.pack_propagate(False)
 
-        self.connection_buttons.append(connection_button)
+        self._connection_buttons.append(connection_button)
+        self._on_connection_buttons_change()

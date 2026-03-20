@@ -12,11 +12,10 @@ from app.config import PING_INTERVAL
 
 
 class ConnectionButton(ctk.CTkFrame):
-    def __init__(self, parent, app, ip_address, connection_buttons, ping_log=False):
+    def __init__(self, parent, app, ip_address, ping_log=False):
         self._parent = parent
         self._app = app
         self.ip_address = ip_address
-        self.connection_buttons = connection_buttons
         self.ping_log = ping_log
 
         super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
@@ -104,8 +103,7 @@ class ConnectionButton(ctk.CTkFrame):
 
     def destroy(self):
         self.run_status_loop = False
-        if self in self.connection_buttons:
-            self.connection_buttons.remove(self)
+        self._parent.remove_connection_button(self)
         super().destroy()
 
     def delete_device(self):
