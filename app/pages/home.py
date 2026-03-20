@@ -41,7 +41,7 @@ class HomePage(ctk.CTkFrame):
 
         # --- Default no device label ---
         self.no_devices_label = ctk.CTkLabel(
-            self.devices_scroll_frame,
+            self.devices_scroll_frame,  # todo change the parent so the label isn't pressed upwards
             text="No devices",
             font=("Arial", 18, "bold"),
             text_color="gray60"
