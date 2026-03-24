@@ -62,22 +62,18 @@ class Database:
     ) -> None:
         """Create a new connection record"""
         with self._connect() as conn:
-            conn.execute(
-                """
-                INSERT INTO connections (
-                    ip_address,
-                    device_name,
-                    username,
-                    password
+                conn.execute(
+                    "INSERT INTO connections (ip_address, device_name, username, password) VALUES (?, ?, ?, ?)",
+                    (ip_address, device_name, username, password),
                 )
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(ip_address) DO UPDATE SET
-                    device_name = excluded.device_name,
-                    username = excluded.username,
-                    password = excluded.password
-                """,
-                (ip_address, device_name, username, password),
-            )
+
+    def ip_exists(self, ip_address: str) -> bool:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT 1 FROM connections WHERE ip_address = ?",
+                (ip_address,)
+            ).fetchone()
+        return row is not None
 
     def get_all_connections(self) -> list[tuple]:
         """Retrieve all connections as a list of tuples."""
