@@ -17,8 +17,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self, width=200, height=300, bg_color="transparent",
             fg_color="gray20", corner_radius=1
         )
-        container_frame.pack(pady=10)
-        container_frame.pack_propagate(False)
         container_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
         # -- Header --
@@ -26,7 +24,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
             container_frame, text=f"  {title}  ",
             font=("Arial", 16, "bold",), fg="white", bg="gray20"
         )
-        header_label.pack(pady=20)
         header_label.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
 
         # -- IP Address entry field --
@@ -34,7 +31,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
             container_frame, placeholder_text="ip address",
             placeholder_text_color="gray50", corner_radius=5
         )
-        self.ip_address_entry.pack(pady=10)
         self.ip_address_entry.place(relx=0.5, rely=0.24, anchor=tk.CENTER)
         if "ip_address" in self.defaults:
             self.ip_address_entry.insert(0, self.defaults["ip_address"])
@@ -44,7 +40,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
             container_frame, placeholder_text="device name",
             placeholder_text_color="gray50", corner_radius=5
         )
-        self.device_name_entry.pack(pady=10)
         self.device_name_entry.place(relx=0.5, rely=0.37, anchor=tk.CENTER)
         if "device_name" in self.defaults:
             self.device_name_entry.insert(0, self.defaults["device_name"])
@@ -54,7 +49,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
             container_frame, placeholder_text="username",
             placeholder_text_color="gray50", corner_radius=5
         )
-        self.username_entry.pack(pady=10)
         self.username_entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         if "username" in self.defaults:
             self.username_entry.insert(0, self.defaults["username"])
@@ -64,21 +58,23 @@ class BaseDeviceInput(ctk.CTkToplevel):
             container_frame, placeholder_text="password",
             placeholder_text_color="gray50", corner_radius=5
         )
-        self.password_entry.pack(pady=10)
         self.password_entry.place(relx=0.5, rely=0.63, anchor=tk.CENTER)
         if "password" in self.defaults:
             self.password_entry.insert(0, self.defaults["password"])
 
         # -- Completion button --
-        self.variable_button = ctk.CTkButton(
+        self.action_button = ctk.CTkButton(
             container_frame, text=title, font=("Arial", 13, "bold"),
             command=self.process_inputs, bg_color="transparent",
             fg_color="royalblue", hover_color="royalblue4", corner_radius=5
         )
-        self.variable_button.pack(pady=10)
-        self.variable_button.place(relx=0.5, rely=0.76, anchor=tk.CENTER)
+        self.action_button.place(relx=0.5, rely=0.76, anchor=tk.CENTER)
 
-        self.after(10, self._init_ux)
+        self.bind("<Map>", self._on_map)
+
+    def _on_map(self, event):
+        self.unbind("<Map>")
+        self._init_ux()
 
     def _init_ux(self):
         # --- Focus and modal behavior ---
@@ -151,4 +147,4 @@ class BaseDeviceInput(ctk.CTkToplevel):
         if index < len(self._fields) - 1:
             self._fields[index + 1].focus()
         else:
-            self.variable_button.invoke()
+            self.action_button.invoke()
