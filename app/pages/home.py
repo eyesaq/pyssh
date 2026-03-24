@@ -15,8 +15,7 @@ class HomePage(ctk.CTkFrame):
         self._connection_buttons = []
 
         # -- Add Device button --
-        add_device_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent",
-                                                    fg_color="gray21", corner_radius=1)
+        add_device_frame = ctk.CTkFrame(self, width=340, height=50, bg_color="transparent", fg_color="gray21")
         add_device_frame.pack(padx=5, pady=5, fill="x")
         add_device_frame.pack_propagate(False)
 
@@ -36,7 +35,8 @@ class HomePage(ctk.CTkFrame):
 
         # --- Default no device label ---
         self.no_devices_label = ctk.CTkLabel(
-            self,
+            self.devices_scroll_frame._parent_canvas,  # attach to scroll frame
+            bg_color='transparent',
             text="No devices",
             font=("Arial", 18, "bold"),
             text_color="gray60"
@@ -65,7 +65,7 @@ class HomePage(ctk.CTkFrame):
     def update_no_device_label(self):
         if len(self._connection_buttons) == 0:
             self.no_devices_label.lift()  # Bring above scroll frame
-            self.no_devices_label.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
+            self.no_devices_label.place(relx=0.5, rely=0.5, anchor='center')
         else:
             self.no_devices_label.place_forget()
 
