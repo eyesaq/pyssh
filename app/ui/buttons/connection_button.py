@@ -21,39 +21,49 @@ class ConnectionButton(ctk.CTkFrame):
 
         ip_address, device_name, username, password = self.device_info
 
+        # Toolbox buttons container
+        toolbox_frame = ctk.CTkFrame(self)
+        toolbox_frame.place(
+            relx=0.0, rely=1.0, anchor="sw", relwidth=0.1,
+            relheight=0.4, x=5, y=-5
+        )
+
+        # Delete device button
+        delete_icon = self._app.icons.delete_button
+        w, h = delete_icon.cget('size')
+
+        delete_connection = ctk.CTkButton(
+            toolbox_frame, image=delete_icon, text='', fg_color="transparent",
+            hover_color="gainsboro", command=self.delete_device, width=w, height=h
+        )
+        delete_connection.place(anchor='center', relx=0.2, rely=0.5)
+
+        # Edit device button
+        edit_icon = self._app.icons.edit_button
+        w, h = edit_icon.cget('size')
+
+        edit_connection = ctk.CTkButton(
+            toolbox_frame, image=edit_icon, text= '', fg_color="transparent",
+            hover_color="gainsboro", command=self.edit_device, width=w, height=h
+        )
+        edit_connection.place(anchor='center', relx=0.5, rely=0.5)
+
+        # SSH Commands menu
+        menu = SSHActionMenu(toolbox_frame, self._app)
+        menu.place(relx=0.8, rely=0.5, anchor='center')
+
         # Device name title
         self._device_name_label = ctk.CTkLabel(
             self, text=device_name, font=("Arial", 10, "bold"), fg_color="transparent",
             bg_color="transparent", text_color="white"
         )
-        self._device_name_label.pack(side="left", pady=5)
         self._device_name_label.place(relx=0.02, rely=0.13, anchor=tk.W)
-
-        # Delete device button
-        delete_connection = ctk.CTkButton(
-            self, text="X", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
-            text_color="red", corner_radius=0, command=self.delete_device)
-        delete_connection.pack(pady=5)
-        delete_connection.place(relx =0.01, rely=0.13, anchor=tk.CENTER)
-
-        # todo improve edit button
-        # Edit device button
-        edit_connection = ctk.CTkButton(
-            self, text="✏️", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
-            text_color="blue", corner_radius=0, command=self.edit_device)
-        edit_connection.pack(pady=10)
-        edit_connection.place(relx =0.05, rely=0.23, anchor=tk.CENTER)
-
-        # SSH Commands menu
-        menu = SSHActionMenu(self, self._app)
-        menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
 
         # Online/offline status label
         self.status_label = ctk.CTkLabel(
             self, text="Loading...", font=("Arial", 10), fg_color="transparent",
             bg_color="transparent", text_color="white"
         )
-        self.status_label.pack(pady=5)
         self.status_label.place(relx=0.92, rely=0.229, anchor=tk.W)
 
         # Kick-start the update loop

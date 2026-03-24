@@ -3,14 +3,25 @@ import tkinter as tk
 import subprocess
 import paramiko
 import threading
+import customtkinter as ctk
 
-class SSHActionMenu(tk.Menubutton):
+
+class SSHActionMenu(ctk.CTkButton):
     def __init__(self, parent, app):
+        menu_icon = app.icons.menu_button
+        w, h = menu_icon.cget('size')
+
         super().__init__(
-            parent, text="⋯", font=("Arial", 25), bg="gray21", fg="white", activebackground="gray21",
-            activeforeground="gray", relief="flat", bd=0, highlightthickness=0,
-            highlightbackground="gray21", highlightcolor="gray21"
+            parent,
+            image=menu_icon,
+            text='',
+            width=w,
+            height=h,
+            fg_color="transparent",
+            hover_color="gainsboro",
+            command=self._open_menu
         )
+
         self._parent = parent
         self._app = app
 
@@ -20,6 +31,11 @@ class SSHActionMenu(tk.Menubutton):
         self.menu.add_command(label="Reboot", command=self.reboot)
         self.menu.add_command(label="Shutdown", command=self.shutdown)
         self.menu.add_command(label="SSH", command=self.start_ssh)
+
+    def _open_menu(self):
+        x = self.winfo_rootx()
+        y = self.winfo_rooty() + self.winfo_height()
+        self.menu.tk_popup(x, y)
 
     @property
     def device_info(self):
@@ -39,7 +55,7 @@ class SSHActionMenu(tk.Menubutton):
 
     def reboot(self):
         threading.Thread(target=self._reboot_thread).start()
-        
+
     def _reboot_thread(self):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -76,7 +92,3 @@ class SSHActionMenu(tk.Menubutton):
             print(line.strip())
 
         print(f'\n\'{device_name}\'@{ip_address} shut down operation ended\n')
-
-
-    
-
