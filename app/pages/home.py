@@ -9,10 +9,8 @@ from app.config import PING_LOG
 
 class HomePage(ctk.CTkFrame):
     def __init__(self, parent, app):
-        self._parent = parent
+        super().__init__(parent)
         self._app = app
-
-        super().__init__(self._parent)
 
         self._connection_buttons = []
 

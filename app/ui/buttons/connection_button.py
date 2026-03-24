@@ -13,13 +13,11 @@ from app.config import PING_INTERVAL
 
 class ConnectionButton(ctk.CTkFrame):
     def __init__(self, parent, app, ip_address, on_remove_connection_button_function, ping_log=False):
-        self._parent = parent
+        super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
         self._app = app
         self.ip_address = ip_address
         self.remove_connection_button = on_remove_connection_button_function
         self.ping_log = ping_log
-
-        super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
 
         ip_address, device_name, username, password = self.device_info
 

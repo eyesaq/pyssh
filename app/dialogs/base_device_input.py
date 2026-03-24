@@ -5,11 +5,9 @@ from typing import Callable, Optional
 
 class BaseDeviceInput(ctk.CTkToplevel):
     def __init__(self, parent, on_completion_function: Callable, title: str, defaults: Optional[dict] = None):
-        self._parent = parent
+        super().__init__(parent)
         self.process_function = on_completion_function
         self.defaults = defaults or {}
-
-        super().__init__(self._parent)
 
         self.title(title)
         self.geometry("250x350")
