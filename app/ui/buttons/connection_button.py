@@ -101,7 +101,7 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.configure(text='● Offline', text_color="red")
 
     def delete_device(self):
-        print(f'Deleted device {self._app.database.get_field_by_ip(self.ip_address, 'device_name')}@{self.ip_address}')
+        print(f'Deleted device {self._app.database.get_device_info_by_ip(self.ip_address)[0]}@{self.ip_address}')
         self._app.database.delete_device_by_ip(self.ip_address)
         self.run_status_loop = False
         self.remove_connection_button(self)

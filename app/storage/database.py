@@ -30,26 +30,7 @@ class Database:
                 """
             )
 
-    def reset_database(self) -> None:
-        """Completely reset the database."""
-        with self._connect() as conn:
-            conn.execute("DROP TABLE IF EXISTS connections")
-
-        self._init_database()
-
-    def get_field_by_ip(self, ip_address: str, field: str):
-        if field not in self._ALLOWED_FIELDS:
-            raise ValueError(f"Invalid field: {field}")
-
-        with self._connect() as conn:
-            row = conn.execute(
-                f"SELECT {field} FROM connections WHERE ip_address = ?",
-                (ip_address,),
-            ).fetchone()
-
-        return row[0] if row else None
-
-    def get_device_info_by_ip(self, ip_address: str) -> tuple | None:
+    def get_device_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
         """Return the full row for a given IP address as a tuple."""
         with self._connect() as conn:
             row = conn.execute(
@@ -78,25 +59,25 @@ class Database:
             device_name: str,
             username: str,
             password: str,
-        ) -> None:
-            """Create a new connection record"""
-            with self._connect() as conn:
-                conn.execute(
-                    """
-                    INSERT INTO connections (
-                        ip_address,
-                        device_name,
-                        username,
-                        password
-                    )
-                    VALUES (?, ?, ?, ?)
-                    ON CONFLICT(ip_address) DO UPDATE SET
-                        device_name = excluded.device_name,
-                        username = excluded.username,
-                        password = excluded.password
-                    """,
-                    (ip_address, device_name, username, password),
+    ) -> None:
+        """Create a new connection record"""
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO connections (
+                    ip_address,
+                    device_name,
+                    username,
+                    password
                 )
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(ip_address) DO UPDATE SET
+                    device_name = excluded.device_name,
+                    username = excluded.username,
+                    password = excluded.password
+                """,
+                (ip_address, device_name, username, password),
+            )
 
     def get_all_connections(self) -> list[tuple]:
         """Retrieve all connections as a list of tuples."""
