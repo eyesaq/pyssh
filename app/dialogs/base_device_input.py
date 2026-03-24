@@ -110,9 +110,9 @@ class BaseDeviceInput(ctk.CTkToplevel):
             return
 
         # Normalize inputs
-        normalized_ip_address = ip_address.lower().strip()
-        normalized_device_name = device_name.lower().strip()
-        normalized_username = username.lower().strip()
+        normalized_ip_address = ip_address.strip()
+        normalized_device_name = device_name.strip()
+        normalized_username = username
         normalized_password = password
 
         return normalized_ip_address, normalized_device_name, normalized_username, normalized_password
