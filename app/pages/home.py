@@ -67,16 +67,13 @@ class HomePage(ctk.CTkFrame):
     def remove_connection_button(self, button):
         if button in self._connection_buttons:
             self._connection_buttons.remove(button)
-            self._on_connection_buttons_change()
+            self.update_no_device_label()
 
-    def _on_connection_buttons_change(self):
-        try:    # todo check this; temporary fix button destroy method being called tries to place a label when everything else is destroyed
-            if len(self._connection_buttons) == 0:
-                self.no_devices_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-            else:
-                self.no_devices_label.place_forget()
-        except Exception:
-            pass
+    def update_no_device_label(self):
+        if len(self._connection_buttons) == 0:
+            self.no_devices_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        else:
+            self.no_devices_label.place_forget()
 
     def on_add_device(self):
         AddDeviceDialog(self, self._app, self.create_connection_button)
@@ -93,4 +90,4 @@ class HomePage(ctk.CTkFrame):
         connection_button.pack_propagate(False)
 
         self._connection_buttons.append(connection_button)
-        self._on_connection_buttons_change()
+        self.update_no_device_label()
