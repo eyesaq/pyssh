@@ -6,8 +6,9 @@ class Icons:
     def __init__(self):
         self._icons_path = Path('data/icons')
 
-        self.edit_button = self._load('edit_button.png')
         self.delete_button = self._load('delete_button.jpg')
+        self.edit_button = self._load('edit_button.png')
+        self.menu_button = self._load('menu_button.png')
 
     def _load(self, file_name, size=(10, 10)):
         return ctk.CTkImage(
