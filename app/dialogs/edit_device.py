@@ -23,5 +23,5 @@ class EditDeviceDialog(BaseDeviceInput):
 
     def edit_device(self, ip_address, device_name, username, password):
         self._app.database.update_connection_by_ip(self.old_state[0], ip_address, device_name, username, password)
-        if ip_address != self.old_state[0]:
-            self._update_button_data(new_ip=ip_address)
+        if (ip_address, device_name, username, password) != self.old_state:
+            self._update_button_data(new_ip=ip_address if ip_address != self.old_state[0] else None)

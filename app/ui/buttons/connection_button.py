@@ -90,15 +90,15 @@ class ConnectionButton(ctk.CTkFrame):
             self.after(PING_INTERVAL, self.status_update_loop)
 
     def _ping_and_update(self):
+        self._device_name_label.configure(text=self._app.database.get_connection_info_by_ip(self.ip_address)[1])
+
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
 
         if self.ping_log:
             print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
 
-        self._device_name_label.configure(text=self._app.database.get_connection_info_by_ip(self.ip_address)[1])
-
-        self.after(0, lambda: self.online_appearance() if reachable else self.offline_appearance())
+        self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
 
     @property
     def device_info(self):
