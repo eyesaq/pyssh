@@ -2,6 +2,7 @@
 import customtkinter as ctk
 import tkinter as tk
 from typing import Callable, Optional
+from functools import partial
 
 class BaseDeviceInput(ctk.CTkToplevel):
     def __init__(self, parent, on_completion_function: Callable, title: str, defaults: Optional[dict] = None):
@@ -77,12 +78,10 @@ class BaseDeviceInput(ctk.CTkToplevel):
         self._init_ux()
 
     def _init_ux(self):
-        # --- Focus and modal behavior ---
         self.lift()
         self.focus_force()
         self.grab_set()
 
-        # --- Field order for keyboard navigation ---
         self._fields = [
             self.ip_address_entry,
             self.device_name_entry,
@@ -90,14 +89,12 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self.password_entry,
         ]
 
-        # Start focused on the IP field
         self.ip_address_entry.focus()
 
-        # Bind navigation keys
         for idx, field in enumerate(self._fields):
-            field.bind("<Return>", lambda e, i=idx: self._on_enter(i))
-            field.bind("<Down>", lambda e, i=idx: self._focus_next(i))
-            field.bind("<Up>", lambda e, i=idx: self._focus_prev(i))
+            field.bind("<Return>", partial(self._on_enter, idx))
+            field.bind("<Down>", partial(self._focus_next, idx))
+            field.bind("<Up>", partial(self._focus_prev, idx))
 
     def retrieve_normalized_inputs(self):
         # Retrieve inputs
@@ -107,9 +104,9 @@ class BaseDeviceInput(ctk.CTkToplevel):
         password = self.password_entry.get()
 
         # Validate inputs
-        invalid_input = self._validate_entries(ip_address, device_name, username, password)
-        if invalid_input:
-            self._bad_validation(invalid_input)
+        invalid_inputs = self._validate_entries(ip_address, device_name, username, password)
+        if invalid_inputs:
+            self._bad_validation(invalid_inputs['main_error_message'], invalid_inputs['invalid_fields'])
             return
 
         # Normalize inputs
@@ -120,8 +117,16 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         return normalized_ip_address, normalized_device_name, normalized_username, normalized_password
 
-    def _bad_validation(self, error_message):
-        pass    # todo if validation fails
+    def _reset_border(self, field):
+        field.configure(border_color="gray30")
+
+    def _bad_validation(self, main_error_message: str, invalid_fields: tuple[ctk.CTkEntry,...]):
+        for invalid_field in invalid_fields:
+            invalid_field.configure(border_color="red")
+            invalid_field.bind("<FocusIn>", partial(self._reset_border, invalid_field))
+
+        print(f'Validation Error: {main_error_message}')
+        # todo add a warning dialog
 
     def process_inputs(self):
         normalized_inputs = self.retrieve_normalized_inputs()
@@ -130,20 +135,19 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self.destroy()
 
     def _validate_entries(self, ip_address, device_name, username, password):
-        return  # todo validation logic
+        # todo validation logic
+        #return {'main_error_message': 'PLACEHOLDER', 'invalid_fields': (self.ip_address_entry,)}
+        return None
 
-    def _focus_next(self, index):
-        # Move down unless we're already at the last field
+    def _focus_next(self, index, event=None):
         if index < len(self._fields) - 1:
             self._fields[index + 1].focus()
 
-    def _focus_prev(self, index):
-        # Move up unless we're at the first field
+    def _focus_prev(self, index, event=None):
         if index > 0:
             self._fields[index - 1].focus()
 
-    def _on_enter(self, index):
-        # Enter moves down, but on the last field it submits
+    def _on_enter(self, index, event=None):
         if index < len(self._fields) - 1:
             self._fields[index + 1].focus()
         else:
