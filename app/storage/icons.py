@@ -10,8 +10,8 @@ class Icons:
         self.edit_button = self._load('edit_button.png')
         self.menu_button = self._load('menu_button.png')
 
-        self.online_indicator = self._load('online_indicator.png')
-        self.offline_indicator = self._load('offline_indicator.png')
+        self.online_indicator = self._load('online_indicator.png', (30, 30))
+        self.offline_indicator = self._load('offline_indicator.png', (30, 30))
 
     def _load(self, file_name, size=(10, 10)):
         return ctk.CTkImage(

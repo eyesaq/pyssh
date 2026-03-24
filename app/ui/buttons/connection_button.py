@@ -60,11 +60,10 @@ class ConnectionButton(ctk.CTkFrame):
         self._device_name_label.place(x=5, y=2, relx=0.0, rely=0.0, anchor='nw')
 
         # Online/offline status label
-        self.status_label = ctk.CTkLabel(
-            self, text="Loading...", font=("Arial", 30), fg_color="transparent",
-            bg_color="transparent", text_color="white"
-        )
-        self.status_label.place(relx=0.95, rely=0.47, anchor='center')
+        w, h = self._app.icons.online_indicator.cget('size')
+
+        self.status_label = ctk.CTkLabel(self, text="", image=None, width=w, height=h)
+        self.status_label.place(relx=0.97, rely=0.5, anchor='center')
 
         # Kick-start the update loop
         self._run_status_loop = True
@@ -105,10 +104,10 @@ class ConnectionButton(ctk.CTkFrame):
         return self._app.database.get_connection_info_by_ip(self.ip_address)
 
     def online_appearance(self):
-        self.status_label.configure(text='●', text_color="green")
+        self.status_label.configure(image=self._app.icons.online_indicator)
 
     def offline_appearance(self):
-        self.status_label.configure(text='X', text_color="red")
+        self.status_label.configure(image=self._app.icons.offline_indicator)
 
     def delete_device(self):
         print(f'Deleted device {self._app.database.get_connection_info_by_ip(self.ip_address)[0]}@{self.ip_address}')
