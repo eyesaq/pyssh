@@ -6,14 +6,13 @@ import threading
 
 class SSHActionMenu(tk.Menubutton):
     def __init__(self, parent, app):
-        self.parent = parent
-        self._app = app
-
         super().__init__(
-            self.parent, text="⋯", font=("Arial", 25), bg="gray21", fg="white", activebackground="gray21",
+            parent, text="⋯", font=("Arial", 25), bg="gray21", fg="white", activebackground="gray21",
             activeforeground="gray", relief="flat", bd=0, highlightthickness=0,
             highlightbackground="gray21", highlightcolor="gray21"
         )
+        self._parent = parent
+        self._app = app
 
         self.menu = tk.Menu(self, tearoff=0, bg="gray10", fg="white", relief="flat", bd=0)
         self['menu'] = self.menu
@@ -24,7 +23,7 @@ class SSHActionMenu(tk.Menubutton):
 
     @property
     def device_info(self):
-        return self._app.database.get_connection_info_by_ip(self.parent.ip_address)
+        return self._app.database.get_connection_info_by_ip(self._parent.ip_address)
 
     def start_ssh(self):
         threading.Thread(target=self._ssh_thread).start()
