@@ -10,6 +10,9 @@ class Icons:
         self.edit_button = self._load('edit_button.png')
         self.menu_button = self._load('menu_button.png')
 
+        self.online_indicator = self._load('online_indicator.png')
+        self.offline_indicator = self._load('offline_indicator.png')
+
     def _load(self, file_name, size=(10, 10)):
         return ctk.CTkImage(
             light_image=Image.open(self._icons_path/file_name),
