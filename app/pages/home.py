@@ -41,11 +41,8 @@ class HomePage(ctk.CTkFrame):
             font=("Arial", 18, "bold"),
             text_color="gray60"
         )
-        self.update_no_device_label()
-
         self._init_buttons()
-
-        self.after_idle(self._init_ux)
+        self._init_ux()
 
     def _init_ux(self):
         # --- Focus ---
@@ -58,6 +55,7 @@ class HomePage(ctk.CTkFrame):
     def _init_buttons(self):
         for ip_address in self._app.database.get_all_ip_addresses():
             self.create_connection_button(ip_address, ping_log=PING_LOG)
+        self.update_no_device_label()
 
     def remove_connection_button(self, button):
         if button in self._connection_buttons:
