@@ -86,7 +86,7 @@ class ConnectionButton(ctk.CTkFrame):
         if self.ping_log:
             print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
 
-        self._device_name_label.configure(text=self._app.database.get_field_by_ip(self.ip_address, 'device_name'))
+        self._device_name_label.configure(text=self._app.database.get_device_info_by_ip(self.ip_address)[1])
 
         self.after(0, lambda: self.online_appearance() if reachable else self.offline_appearance())
 
