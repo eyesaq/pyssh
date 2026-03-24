@@ -86,13 +86,13 @@ class ConnectionButton(ctk.CTkFrame):
         if self.ping_log:
             print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
 
-        self._device_name_label.configure(text=self._app.database.get_device_info_by_ip(self.ip_address)[1])
+        self._device_name_label.configure(text=self._app.database.get_connection_info_by_ip(self.ip_address)[1])
 
         self.after(0, lambda: self.online_appearance() if reachable else self.offline_appearance())
 
     @property
     def device_info(self):
-        return self._app.database.get_device_info_by_ip(self.ip_address)
+        return self._app.database.get_connection_info_by_ip(self.ip_address)
 
     def online_appearance(self):
         self.status_label.configure(text='● Online', text_color="green")
@@ -101,8 +101,8 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.configure(text='● Offline', text_color="red")
 
     def delete_device(self):
-        print(f'Deleted device {self._app.database.get_device_info_by_ip(self.ip_address)[0]}@{self.ip_address}')
-        self._app.database.delete_device_by_ip(self.ip_address)
+        print(f'Deleted device {self._app.database.get_connection_info_by_ip(self.ip_address)[0]}@{self.ip_address}')
+        self._app.database.delete_connection_by_ip(self.ip_address)
         self.run_status_loop = False
         self.remove_connection_button(self)
         self.destroy()

@@ -30,7 +30,7 @@ class Database:
                 """
             )
 
-    def get_device_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
+    def get_connection_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
         """Return the full row for a given IP address as a tuple."""
         with self._connect() as conn:
             row = conn.execute(
@@ -84,7 +84,7 @@ class Database:
 
         return rows
 
-    def update_device_by_ip(
+    def update_connection_by_ip(
             self,
             old_ip: str,
             new_ip: str | None = None,
@@ -134,7 +134,7 @@ class Database:
         # Recreate the database with the schema
         self._init_database()
 
-    def delete_device_by_ip(self, ip_address: str) -> None:
+    def delete_connection_by_ip(self, ip_address: str) -> None:
         """Delete a connection record by its IP address."""
         with self._connect() as conn:
             conn.execute(

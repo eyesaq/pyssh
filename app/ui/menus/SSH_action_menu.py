@@ -24,7 +24,7 @@ class SSHActionMenu(tk.Menubutton):
 
     @property
     def device_info(self):
-        return self._app.database.get_device_info_by_ip(self.parent.ip_address)
+        return self._app.database.get_connection_info_by_ip(self.parent.ip_address)
 
     def start_ssh(self):
         threading.Thread(target=self._ssh_thread).start()
