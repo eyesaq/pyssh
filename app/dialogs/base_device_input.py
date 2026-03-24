@@ -1,6 +1,7 @@
 # Standard imports
 import customtkinter as ctk
 import tkinter as tk
+import ipaddress
 from typing import Callable, Optional
 from functools import partial
 
@@ -14,22 +15,22 @@ class BaseDeviceInput(ctk.CTkToplevel):
         self.geometry("250x350")
 
         # -- Main container --
-        container_frame = ctk.CTkFrame(
+        self.container_frame = ctk.CTkFrame(
             self, width=200, height=300, bg_color="transparent",
             fg_color="gray20", corner_radius=1
         )
-        container_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.container_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
         # -- Header --
         header_label = tk.Label(
-            container_frame, text=f"  {title}  ",
+            self.container_frame, text=f"  {title}  ",
             font=("Arial", 16, "bold",), fg="white", bg="gray20"
         )
         header_label.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
 
         # -- IP Address entry field --
         self.ip_address_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="ip address",
+            self.container_frame, placeholder_text="ip address",
             placeholder_text_color="gray50", corner_radius=5
         )
         self.ip_address_entry.place(relx=0.5, rely=0.24, anchor=tk.CENTER)
@@ -38,7 +39,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         # -- Device Name entry field --
         self.device_name_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="device name",
+            self.container_frame, placeholder_text="device name",
             placeholder_text_color="gray50", corner_radius=5
         )
         self.device_name_entry.place(relx=0.5, rely=0.37, anchor=tk.CENTER)
@@ -47,7 +48,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         # -- Username entry field --
         self.username_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="username",
+            self.container_frame, placeholder_text="username",
             placeholder_text_color="gray50", corner_radius=5
         )
         self.username_entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
@@ -56,7 +57,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         # -- Password entry field --
         self.password_entry = ctk.CTkEntry(
-            container_frame, placeholder_text="password",
+            self.container_frame, placeholder_text="password",
             placeholder_text_color="gray50", corner_radius=5
         )
         self.password_entry.place(relx=0.5, rely=0.63, anchor=tk.CENTER)
@@ -65,7 +66,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         # -- Completion button --
         self.action_button = ctk.CTkButton(
-            container_frame, text=title, font=("Arial", 13, "bold"),
+            self.container_frame, text=title, font=("Arial", 13, "bold"),
             command=self.process_inputs, bg_color="transparent",
             fg_color="royalblue", hover_color="royalblue4", corner_radius=5
         )
@@ -104,10 +105,25 @@ class BaseDeviceInput(ctk.CTkToplevel):
         password = self.password_entry.get()
 
         # Validate inputs
-        invalid_inputs = self._validate_entries(ip_address, device_name, username, password)
-        if invalid_inputs:
-            self._bad_validation(invalid_inputs['main_error_message'], invalid_inputs['invalid_fields'])
+        invalid_inputs = self._validate_entries(ip_address)
+        if not self._validate_entries(ip_address):
+            message = "Invalid IP address format!"
+            self._bad_validation(message, (self.ip_address_entry,))
+            self.show_notification(text=message, color="red", duration=3000)
             return
+        else:
+            print("valid IP address format!")
+            pass
+            
+        if self._app.database.ip_exists(ip_address):
+            message = "IP address already in database!"
+            self._bad_validation(message,(self.ip_address_entry,))
+            self.show_notification(text=message, color="red", duration=3000)
+            return
+        else:
+            print("IP address not already in database!")
+            pass
+
 
         # Normalize inputs
         normalized_ip_address = ip_address.lower().strip()
@@ -117,13 +133,22 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         return normalized_ip_address, normalized_device_name, normalized_username, normalized_password
 
-    def _reset_border(self, field):
+    def _reset_border(self, field, event=None):
         field.configure(border_color="gray30")
+
+    # Modular notifcation for failed validation warnings
+    def show_notification(self, text: str, color: str, duration=3000):
+        notif_label = ctk.CTkLabel(self, text=text, bg_color="gray20" ,fg_color="gray20", text_color=color)
+        notif_label.place(relx=0.5, rely=0.83, anchor="center")
+        notif_label.lift()
+        print("Warning label created")
+        self.after(duration, notif_label.destroy)
 
     def _bad_validation(self, main_error_message: str, invalid_fields: tuple[ctk.CTkEntry,...]):
         for invalid_field in invalid_fields:
             invalid_field.configure(border_color="red")
             invalid_field.bind("<FocusIn>", partial(self._reset_border, invalid_field))
+        
 
         print(f'Validation Error: {main_error_message}')
         # todo add a warning dialog
@@ -132,12 +157,13 @@ class BaseDeviceInput(ctk.CTkToplevel):
         normalized_inputs = self.retrieve_normalized_inputs()
         if normalized_inputs:
             self.process_function(*normalized_inputs)
-            self.destroy()
 
-    def _validate_entries(self, ip_address, device_name, username, password):
-        # todo validation logic
-        #return {'main_error_message': 'PLACEHOLDER', 'invalid_fields': (self.ip_address_entry,)}
-        return None
+    def _validate_entries(self, ip_address: str):
+        try:
+            ipaddress.ip_address(ip_address) 
+            return True
+        except ValueError:
+            return False
 
     def _focus_next(self, index, event=None):
         if index < len(self._fields) - 1:
