@@ -48,7 +48,7 @@ class HomePage(ctk.CTkFrame):
 
         self._init_buttons()
 
-        self.after(10, self._init_ux)
+        self.after_idle(self._init_ux)
 
     def _init_ux(self):
         # --- Focus ---
