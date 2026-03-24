@@ -116,7 +116,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
             pass
             
         if self._app.database.ip_exists(ip_address):
-            message = "IP address already in database!"
+            message = "IP address already exists!"
             self._bad_validation(message,(self.ip_address_entry,))
             self.show_notification(text=message, color="red", duration=3000)
             return
