@@ -5,6 +5,7 @@ import customtkinter as tk
 from app.pages.home import HomePage
 from app.storage.user_data import UserDataDir
 from app.storage.database import Database
+from app.storage.icons import Icons
 
 class App(tk.CTk):
     """Application root, responsible for root level actions."""
@@ -12,9 +13,11 @@ class App(tk.CTk):
         super().__init__()
         self.title("PySSH")
         self.geometry("800x600")
+        self.lift()
 
         self.user_data_dir = UserDataDir()
         self.database = Database(self.user_data_dir)
+        self.icons = Icons()
 
         self.container = tk.CTkFrame(self)
         self.container.pack(fill="both", expand=True)

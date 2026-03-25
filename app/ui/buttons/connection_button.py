@@ -1,50 +1,84 @@
 # Standard imports
 import customtkinter as ctk
-import tkinter as tk
+from tkinter import messagebox
 import os
 import threading
+from typing import Optional
 
 # Local application imports
 from app.ui.menus.SSH_action_menu import SSHActionMenu
+from app.dialogs.edit_device import EditDeviceDialog
+from app.config import PING_INTERVAL
+from app.ui.tooltips import CTkToolTip
 
 
 class ConnectionButton(ctk.CTkFrame):
-    def __init__(self, parent, app, ip_address, connection_buttons):
-        self._parent = parent
+    def __init__(self, parent, app, ip_address, on_remove_connection_button_function, ping_log=False):
+        super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21")
         self._app = app
         self.ip_address = ip_address
-        self.connection_buttons = connection_buttons
+        self.remove_connection_button = on_remove_connection_button_function
+        self.ping_log = ping_log
 
-        super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21", corner_radius=1)
+        self._highlighted = False
+        self.bind_ids = {}
 
         ip_address, device_name, username, password = self.device_info
 
-        # Device name title
-        device_name_label = ctk.CTkLabel(
-            self, text=device_name, font=("Arial", 10, "bold"), fg_color="transparent",
-            bg_color="transparent", text_color="white"
+        # Toolbox buttons container
+        toolbox_frame = ctk.CTkFrame(self)
+        toolbox_frame.place(
+            relx=0.0, rely=1.0, anchor="sw", relwidth=0.15,
+            relheight=0.4, x=5, y=-5
         )
-        device_name_label.pack(side="left", pady=5)
-        device_name_label.place(relx=0.02, rely=0.13, anchor=tk.W)
 
         # Delete device button
-        delete_connection = ctk.CTkButton(
-            self, text="X", width=15, height=15, fg_color="transparent", hover_color="gainsboro",
-            text_color="red", corner_radius=0, command=self.delete_device)
-        delete_connection.pack(pady=5)
-        delete_connection.place(relx =0.01, rely=0.13, anchor=tk.CENTER)
+        delete_icon = self._app.icons.red_delete_button
+        w, h = delete_icon.cget('size')
+
+        self.delete_connection_button = ctk.CTkButton(
+            toolbox_frame, image=delete_icon, text='', fg_color="transparent",
+            hover_color="gray13", command=self.delete_device, width=w, height=h
+        )
+        self.delete_connection_button.place(anchor='center', relx=0.2, rely=0.5)
+        CTkToolTip(self.delete_connection_button, "Delete")
+
+        # Edit device button
+        edit_icon = self._app.icons.white_edit_button
+        w, h = edit_icon.cget('size')
+
+        self.edit_connection_button = ctk.CTkButton(
+            toolbox_frame, image=edit_icon, text= '', fg_color="transparent",
+            hover_color="gray13", command=self.edit_device, width=w, height=h
+        )
+        self.edit_connection_button.place(anchor='center', relx=0.5, rely=0.5)
+        CTkToolTip(self.edit_connection_button, "Edit")
 
         # SSH Commands menu
-        menu = SSHActionMenu(self, self._app, self.ip_address)
-        menu.place(relx=0.95, rely=1.07, anchor=tk.SE)
+        self.menu_button = SSHActionMenu(toolbox_frame, self._app, self.device_info)
+        self.menu_button.place(relx=0.8, rely=0.5, anchor='center')
+        CTkToolTip(self.menu_button, "SSH options")
+
+        # Device name title
+        self._device_name_label = ctk.CTkLabel(
+            self, text=device_name, font=("Arial", 15, "bold"), fg_color="transparent",
+            bg_color="transparent", text_color="white", height=10
+        )
+        self._device_name_label.place(x=5, y=2, relx=0.0, rely=0.0, anchor='nw')
 
         # Online/offline status label
-        self.status_label = ctk.CTkLabel(
-            self, text="Loading...", font=("Arial", 10), fg_color="transparent",
-            bg_color="transparent", text_color="white"
-        )
-        self.status_label.pack(pady=5)
-        self.status_label.place(relx=0.92, rely=0.229, anchor=tk.W)
+        #w, h = self._app.icons.online_indicator.cget('size')
+
+        top_right_status_frame = ctk.CTkFrame(self, fg_color="transparent", bg_color="transparent")
+        top_right_status_frame.place(relx=1, rely=0.0, anchor="ne", x=-1.5, y=2)
+
+        self._ip_address_label = ctk.CTkLabel(top_right_status_frame, text=ip_address)
+        #self._ip_address_label.place(relx=0.0, rely=0.0, anchor="ne")
+        self._ip_address_label.pack(side="left", padx=(0, 5))
+
+        self.status_label = ctk.CTkLabel(top_right_status_frame, text="○", fg_color="transparent")
+        #self.status_label.place(x=-10, y=2, relx=1, rely=0, anchor='ne')
+        self.status_label.pack(side="left", padx=(0, 5))
 
         # Kick-start the update loop
         self._run_status_loop = True
@@ -67,31 +101,63 @@ class ConnectionButton(ctk.CTkFrame):
     def status_update_loop(self):
         if self._run_status_loop:
             threading.Thread(target=self._ping_and_update, daemon=True).start()
-            self.after(5000, self.status_update_loop)
+            self.after(PING_INTERVAL, self.status_update_loop)
 
     def _ping_and_update(self):
+        self._device_name_label.configure(text=self._app.database.get_connection_info_by_ip(self.ip_address)[1])
+
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
 
-        self.after(0, lambda: self.online_appearance() if reachable else self.offline_appearance())
+        if self.ping_log:
+            print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
+
+        self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
 
     @property
     def device_info(self):
-        return self._app.database.get_device_info_by_ip(self.ip_address)
+        return self._app.database.get_connection_info_by_ip(self.ip_address)
+
+    @property
+    def highlighted(self):
+        return self._highlighted
+
+    @highlighted.setter
+    def highlighted(self, highlight: bool):
+        if highlight:
+            self.configure(border_width=1, border_color="#8EBBFF")
+
+            self.bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection_button.invoke())
+            self.bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection_button.invoke())
+            self.bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu_button.invoke())
+        else:
+            if self.bind_ids:
+                for sequence, bind_id in self.bind_ids.items():
+                    self._app.unbind(sequence, bind_id)
+                self.bind_ids = {}
+            self.configure(border_width=0)
+
+        self._highlighted = highlight
 
     def online_appearance(self):
-        self.status_label.configure(text='● Online', text_color="green")
+        self.status_label.configure(text="●", text_color="green")
 
     def offline_appearance(self):
-        self.status_label.configure(text='● Offline', text_color="red")
-
-    def destroy(self):
-        self.run_status_loop = False
-        if self in self.connection_buttons:
-            self.connection_buttons.remove(self)
-        super().destroy()
+        self.status_label.configure(text="●", text_color="red")
 
     def delete_device(self):
-        print(f'Deleted device {self._app.database.get_field_by_ip(self.ip_address, 'device_name')}@{self.ip_address}')
-        self._app.database.delete_device_by_ip(self.ip_address)
-        self.destroy()
+        device_name = self._app.database.get_connection_info_by_ip(self.ip_address)[1]
+        if messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?"):
+            print(f'Deleted device {device_name}@{self.ip_address}')
+            self._app.database.delete_connection_by_ip(self.ip_address)
+            self.run_status_loop = False
+            self.remove_connection_button(self)
+            self.destroy()
+
+    def update_button_data(self, new_ip: Optional[str] = None):
+        if new_ip:
+            self.ip_address = new_ip
+        self._ping_and_update()
+
+    def edit_device(self):
+        EditDeviceDialog(self, self._app, self.update_button_data)
