@@ -133,7 +133,6 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         tk.messagebox.showwarning("Warning", main_error_message)
         print(f'Validation Error: {main_error_message}')
-        # todo add a warning dialog
 
     def process_inputs(self):
         normalized_inputs = self.retrieve_normalized_inputs()
