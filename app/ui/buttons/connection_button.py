@@ -19,6 +19,9 @@ class ConnectionButton(ctk.CTkFrame):
         self.remove_connection_button = on_remove_connection_button_function
         self.ping_log = ping_log
 
+        self._highlighted = False
+        self.bind_ids = {}
+
         ip_address, device_name, username, password = self.device_info
 
         # Toolbox buttons container
@@ -32,25 +35,25 @@ class ConnectionButton(ctk.CTkFrame):
         delete_icon = self._app.icons.delete_button
         w, h = delete_icon.cget('size')
 
-        delete_connection = ctk.CTkButton(
+        self.delete_connection = ctk.CTkButton(
             toolbox_frame, image=delete_icon, text='', fg_color="transparent",
             hover_color="gainsboro", command=self.delete_device, width=w, height=h
         )
-        delete_connection.place(anchor='center', relx=0.2, rely=0.5)
+        self.delete_connection.place(anchor='center', relx=0.2, rely=0.5)
 
         # Edit device button
         edit_icon = self._app.icons.edit_button
         w, h = edit_icon.cget('size')
 
-        edit_connection = ctk.CTkButton(
+        self.edit_connection = ctk.CTkButton(
             toolbox_frame, image=edit_icon, text= '', fg_color="transparent",
             hover_color="gainsboro", command=self.edit_device, width=w, height=h
         )
-        edit_connection.place(anchor='center', relx=0.5, rely=0.5)
+        self.edit_connection.place(anchor='center', relx=0.5, rely=0.5)
 
         # SSH Commands menu
-        menu = SSHActionMenu(toolbox_frame, self._app)
-        menu.place(relx=0.8, rely=0.5, anchor='center')
+        self.menu = SSHActionMenu(toolbox_frame, self._app)
+        self.menu.place(relx=0.8, rely=0.5, anchor='center')
 
         # Device name title
         self._device_name_label = ctk.CTkLabel(
@@ -102,6 +105,27 @@ class ConnectionButton(ctk.CTkFrame):
     @property
     def device_info(self):
         return self._app.database.get_connection_info_by_ip(self.ip_address)
+
+    @property
+    def highlighted(self):
+        return self._highlighted
+
+    @highlighted.setter
+    def highlighted(self, highlight: bool):
+        if highlight:
+            self.configure(border_width=2, border_color="white")
+
+            self.bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection.invoke())
+            self.bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection.invoke())
+            self.bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu.invoke())
+        else:
+            if self.bind_ids:
+                for sequence, bind_id in self.bind_ids.items():
+                    self._app.unbind(sequence, bind_id)
+                self.bind_ids = {}
+            self.configure(border_width=0)
+
+        self._highlighted = highlight
 
     def online_appearance(self):
         self.status_label.configure(image=self._app.icons.online_indicator)
