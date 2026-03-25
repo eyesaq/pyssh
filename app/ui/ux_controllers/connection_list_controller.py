@@ -71,7 +71,7 @@ class ConnectionListController:
         if not buttons:
             return
 
-        # Unhighlight old
+        # Deselect old selection
         if self._selected_index is not None:
             buttons[self._selected_index].highlighted = False
 
