@@ -3,7 +3,7 @@ All notable changes to **pyssh** will be documented in this file.
 
 ---
 
-## [1.0.0] - 2024-02-01
+## [1.0.0] - 25-3-2026
 ### Added
 - Initial stable release of **pyssh**.
 - Core SSH connection handling using Paramiko.
