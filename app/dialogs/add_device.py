@@ -3,7 +3,6 @@ from typing import Callable
 
 # Local application imports
 from app.dialogs.base_device_input import BaseDeviceInput
-#from app.storage.database import Database
 
 class AddDeviceDialog(BaseDeviceInput):
     def __init__(self, parent, app, on_connection_creation: Callable):
