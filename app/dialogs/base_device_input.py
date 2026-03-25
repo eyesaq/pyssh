@@ -7,6 +7,9 @@ from typing import Callable, Optional
 from functools import partial
 import re
 
+# Local application import
+from app.config import MAX_DEVICE_NAME_LENGTH
+
 
 class BaseDeviceInput(ctk.CTkToplevel):
     def __init__(self, parent, on_completion_function: Callable, title: str, fast_field_overwrite: bool = True, defaults: Optional[dict] = None):
@@ -167,7 +170,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
             errors[self.password_entry].append("Password is required")
 
         # Device name length
-        if len(device_name) > 25:
+        if len(device_name) > MAX_DEVICE_NAME_LENGTH:
             errors[self.device_name_entry].append("Device name must be 25 characters or fewer")
 
         # Username validation
