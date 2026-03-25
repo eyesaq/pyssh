@@ -19,11 +19,12 @@ class BaseDeviceInput(ctk.CTkToplevel):
         self.defaults = defaults or {}
 
         self.title(title)
-        self.geometry("250x420")  # Increased to accommodate error labels
+        self.geometry("250x380")
+        self.resizable(False, False)
 
         # -- Main container --
         self.container_frame = ctk.CTkFrame(
-            self, width=220, height=390, bg_color="transparent",
+            self, width=220, height=350, bg_color="transparent",
             fg_color="gray20", corner_radius=1
         )
         self.container_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
@@ -33,21 +34,20 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self.container_frame, text=f"{title}",
             font=("Arial", 30, "bold"), fg="white", bg="gray20"
         )
-        header_label.place(relx=0.5, rely=0.07, anchor=tk.CENTER)
+        header_label.place(relx=0.5, rely=1/8, anchor=tk.CENTER)
 
         # Each field is paired with an error label beneath it
-        # rely positions are spaced to leave room for error labels
         self.ip_address_entry, self.ip_address_error = self._make_field(
-            "ip address", "ip_address", rely=0.18
+            "ip address", "ip_address", rely=2/7
         )
         self.device_name_entry, self.device_name_error = self._make_field(
-            "device name", "device_name", rely=0.33
+            "device name", "device_name", rely=3/7
         )
         self.username_entry, self.username_error = self._make_field(
-            "username", "username", rely=0.48
+            "username", "username", rely=4/7
         )
         self.password_entry, self.password_error = self._make_field(
-            "password", "password", rely=0.63
+            "password", "password", rely=5/7
         )
 
         # -- Completion button --
@@ -56,7 +56,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
             command=self.process_inputs, bg_color="transparent",
             fg_color="royalblue", hover_color="royalblue4", corner_radius=5
         )
-        self.action_button.place(relx=0.5, rely=0.83, anchor=tk.CENTER)
+        self.action_button.place(relx=0.5, rely=6/7, anchor=tk.CENTER)
 
         self.bind("<Map>", self._on_map)
 
