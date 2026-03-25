@@ -2,10 +2,11 @@
 import socket
 import customtkinter as ctk
 import tkinter as tk
-from tkinter import messagebox
 import ipaddress
 from typing import Callable, Optional
 from functools import partial
+import re
+
 
 class BaseDeviceInput(ctk.CTkToplevel):
     def __init__(self, parent, on_completion_function: Callable, title: str, fast_field_overwrite: bool = True, defaults: Optional[dict] = None):
@@ -15,11 +16,11 @@ class BaseDeviceInput(ctk.CTkToplevel):
         self.defaults = defaults or {}
 
         self.title(title)
-        self.geometry("250x350")
+        self.geometry("250x420")  # Increased to accommodate error labels
 
         # -- Main container --
         self.container_frame = ctk.CTkFrame(
-            self, width=200, height=300, bg_color="transparent",
+            self, width=220, height=390, bg_color="transparent",
             fg_color="gray20", corner_radius=1
         )
         self.container_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
@@ -27,45 +28,24 @@ class BaseDeviceInput(ctk.CTkToplevel):
         # -- Header --
         header_label = tk.Label(
             self.container_frame, text=f"  {title}  ",
-            font=("Arial", 16, "bold",), fg="white", bg="gray20"
+            font=("Arial", 16, "bold"), fg="white", bg="gray20"
         )
-        header_label.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
+        header_label.place(relx=0.5, rely=0.07, anchor=tk.CENTER)
 
-        # -- IP Address entry field --
-        self.ip_address_entry = ctk.CTkEntry(
-            self.container_frame, placeholder_text="ip address",
-            placeholder_text_color="gray50", corner_radius=5
+        # Each field is paired with an error label beneath it
+        # rely positions are spaced to leave room for error labels
+        self.ip_address_entry, self.ip_address_error = self._make_field(
+            "ip address", "ip_address", rely=0.18
         )
-        self.ip_address_entry.place(relx=0.5, rely=0.24, anchor=tk.CENTER)
-        if "ip_address" in self.defaults:
-            self.ip_address_entry.insert(0, self.defaults["ip_address"])
-
-        # -- Device Name entry field --
-        self.device_name_entry = ctk.CTkEntry(
-            self.container_frame, placeholder_text="device name",
-            placeholder_text_color="gray50", corner_radius=5
+        self.device_name_entry, self.device_name_error = self._make_field(
+            "device name", "device_name", rely=0.33
         )
-        self.device_name_entry.place(relx=0.5, rely=0.37, anchor=tk.CENTER)
-        if "device_name" in self.defaults:
-            self.device_name_entry.insert(0, self.defaults["device_name"])
-
-        # -- Username entry field --
-        self.username_entry = ctk.CTkEntry(
-            self.container_frame, placeholder_text="username",
-            placeholder_text_color="gray50", corner_radius=5
+        self.username_entry, self.username_error = self._make_field(
+            "username", "username", rely=0.48
         )
-        self.username_entry.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        if "username" in self.defaults:
-            self.username_entry.insert(0, self.defaults["username"])
-
-        # -- Password entry field --
-        self.password_entry = ctk.CTkEntry(
-            self.container_frame, placeholder_text="password",
-            placeholder_text_color="gray50", corner_radius=5
+        self.password_entry, self.password_error = self._make_field(
+            "password", "password", rely=0.63
         )
-        self.password_entry.place(relx=0.5, rely=0.63, anchor=tk.CENTER)
-        if "password" in self.defaults:
-            self.password_entry.insert(0, self.defaults["password"])
 
         # -- Completion button --
         self.action_button = ctk.CTkButton(
@@ -73,9 +53,27 @@ class BaseDeviceInput(ctk.CTkToplevel):
             command=self.process_inputs, bg_color="transparent",
             fg_color="royalblue", hover_color="royalblue4", corner_radius=5
         )
-        self.action_button.place(relx=0.5, rely=0.76, anchor=tk.CENTER)
+        self.action_button.place(relx=0.5, rely=0.83, anchor=tk.CENTER)
 
         self.bind("<Map>", self._on_map)
+
+    def _make_field(self, placeholder: str, default_key: str, rely: float):
+        """Create an entry field and its paired error label, returning both."""
+        entry = ctk.CTkEntry(
+            self.container_frame, placeholder_text=placeholder,
+            placeholder_text_color="gray50", corner_radius=5
+        )
+        entry.place(relx=0.5, rely=rely, anchor=tk.CENTER)
+        if default_key in self.defaults:
+            entry.insert(0, self.defaults[default_key])
+
+        error_label = ctk.CTkLabel(
+            self.container_frame, text="", font=("Arial", 10),
+            text_color="red", fg_color="transparent", height=8
+        )
+        error_label.place(relx=0.5, rely=rely + 0.07, anchor=tk.CENTER)
+
+        return entry, error_label
 
     def _on_map(self, event):
         self.unbind("<Map>")
@@ -93,8 +91,14 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self.password_entry,
         ]
 
-        self.bind("<Escape>", lambda e: self.destroy())
+        self._error_labels = {
+            self.ip_address_entry: self.ip_address_error,
+            self.device_name_entry: self.device_name_error,
+            self.username_entry: self.username_error,
+            self.password_entry: self.password_error,
+        }
 
+        self.bind("<Escape>", lambda e: self.destroy())
         self.ip_address_entry.focus()
 
         for idx, field in enumerate(self._fields):
@@ -109,13 +113,11 @@ class BaseDeviceInput(ctk.CTkToplevel):
         field.icursor(tk.END)
 
     def retrieve_inputs(self):
-        # Retrieve inputs
         ip_address = self.ip_address_entry.get()
         device_name = self.device_name_entry.get()
         username = self.username_entry.get()
         password = self.password_entry.get()
 
-        # Validate inputs
         errors = self._validate_entries(ip_address, device_name, username, password)
         if errors:
             self._bad_validation(errors)
@@ -123,19 +125,23 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         return ip_address, device_name, username, password
 
-    def _reset_border(self, field, event=None):
+    def _reset_field(self, field, event=None):
         field.configure(border_color="gray30")
+        self._error_labels[field].configure(text="")
 
-    def _bad_validation(self, errors: list[tuple[ctk.CTkEntry, str],...]):
-        main_error_message = errors[0][1]
-        for error in errors:
-            invalid_field = error[0]
-            invalid_field.configure(border_color="red")
-            invalid_field.bind("<FocusIn>", partial(self._reset_border, invalid_field))
-            # todo use error[1] to put first feedback under each entry
+    def _bad_validation(self, errors: dict):
+        first_error_field = None
 
-        tk.messagebox.showwarning("Warning", main_error_message)
-        print(f'Validation Error: {main_error_message}')
+        for field, field_errors in errors.items():
+            if field_errors:
+                if first_error_field is None:
+                    first_error_field = field
+                field.configure(border_color="red")
+                self._error_labels[field].configure(text=field_errors[0])
+                field.bind("<FocusIn>", partial(self._reset_field, field))
+                self.focus()
+            else:
+                self._error_labels[field].configure(text="")
 
     def process_inputs(self):
         inputs = self.retrieve_inputs()
@@ -143,22 +149,48 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self.process_function(*inputs)
 
     def _validate_entries(self, ip_address, device_name, username, password):
-        errors = []
+        errors = {
+            self.ip_address_entry: [],
+            self.device_name_entry: [],
+            self.username_entry: [],
+            self.password_entry: []
+        }
 
-        # todo more validation
+        # Presence checks
+        if not ip_address.strip():
+            errors[self.ip_address_entry].append("IP address is required")
+        if not device_name.strip():
+            errors[self.device_name_entry].append("Device name is required")
+        if not username.strip():
+            errors[self.username_entry].append("Username is required")
+        if not password.strip():
+            errors[self.password_entry].append("Password is required")
 
-        # Check for valid ip address
-        try:
-            ipaddress.ip_address(ip_address)
-        except ValueError:
+        # Device name length
+        if len(device_name) > 25:
+            errors[self.device_name_entry].append("Device name must be 25 characters or fewer")
 
-            # Check for a valid hostname
+        # Username validation
+        if username and not re.fullmatch(r"[A-Za-z0-9_.-]+", username):
+            errors[self.username_entry].append("Username contains invalid characters")
+        if username.startswith("-"):
+            errors[self.username_entry].append("Username cannot start with '-'")
+
+        # Password validation
+        if " " in password:
+            errors[self.password_entry].append("Password cannot contain spaces")
+
+        # IP / Hostname validation
+        if ip_address.strip():
             try:
-                socket.gethostbyname(ip_address)
-            except socket.error:
-                errors.append((self.ip_address_entry, f"'{ip_address}' is not an IP address or hostname"))
+                ipaddress.ip_address(ip_address)
+            except ValueError:
+                try:
+                    socket.gethostbyname(ip_address)
+                except socket.error:
+                    errors[self.ip_address_entry].append(f"'{ip_address}' is not a valid IP or hostname")
 
-        return errors if errors else None
+        return errors if any(errors.values()) else None
 
     def _focus_next(self, index, event=None):
         if index < len(self._fields) - 1:
