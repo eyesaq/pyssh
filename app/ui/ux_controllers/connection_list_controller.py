@@ -30,11 +30,11 @@ class ConnectionListController:
         btn = self._home.connection_buttons[self._selected_index]
 
         if action == "edit":
-            btn.edit_connection.invoke()
+            btn.edit_connection_button.invoke()
         elif action == "delete":
-            btn.delete_connection.invoke()
+            btn.delete_connection_button.invoke()
         elif action == "menu":
-            btn.menu.invoke()
+            btn.menu_button.invoke()
 
     # ---------------------------
     # Mouse bindings

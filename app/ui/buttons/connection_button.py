@@ -1,6 +1,5 @@
 # Standard imports
 import customtkinter as ctk
-import tkinter as tk
 import os
 import threading
 from typing import Optional
@@ -35,25 +34,25 @@ class ConnectionButton(ctk.CTkFrame):
         delete_icon = self._app.icons.delete_button
         w, h = delete_icon.cget('size')
 
-        self.delete_connection = ctk.CTkButton(
+        self.delete_connection_button = ctk.CTkButton(
             toolbox_frame, image=delete_icon, text='', fg_color="transparent",
             hover_color="gainsboro", command=self.delete_device, width=w, height=h
         )
-        self.delete_connection.place(anchor='center', relx=0.2, rely=0.5)
+        self.delete_connection_button.place(anchor='center', relx=0.2, rely=0.5)
 
         # Edit device button
         edit_icon = self._app.icons.edit_button
         w, h = edit_icon.cget('size')
 
-        self.edit_connection = ctk.CTkButton(
+        self.edit_connection_button = ctk.CTkButton(
             toolbox_frame, image=edit_icon, text= '', fg_color="transparent",
             hover_color="gainsboro", command=self.edit_device, width=w, height=h
         )
-        self.edit_connection.place(anchor='center', relx=0.5, rely=0.5)
+        self.edit_connection_button.place(anchor='center', relx=0.5, rely=0.5)
 
         # SSH Commands menu
-        self.menu = SSHActionMenu(toolbox_frame, self._app)
-        self.menu.place(relx=0.8, rely=0.5, anchor='center')
+        self.menu_button = SSHActionMenu(toolbox_frame, self._app, self.device_info)
+        self.menu_button.place(relx=0.8, rely=0.5, anchor='center')
 
         # Device name title
         self._device_name_label = ctk.CTkLabel(
@@ -115,9 +114,9 @@ class ConnectionButton(ctk.CTkFrame):
         if highlight:
             self.configure(border_width=2, border_color="white")
 
-            self.bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection.invoke())
-            self.bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection.invoke())
-            self.bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu.invoke())
+            self.bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection_button.invoke())
+            self.bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection_button.invoke())
+            self.bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu_button.invoke())
         else:
             if self.bind_ids:
                 for sequence, bind_id in self.bind_ids.items():
