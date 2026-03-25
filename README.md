@@ -22,35 +22,34 @@ Clone the repository:
 ```bash
 git clone https://github.com/yourusername/pyssh.git
 cd pyssh
+```
 
 Install dependencies:
-bash
 
+```bash
 pip install -r requirements.txt
+```
 
     Note:  
     tkinter is part of Python’s standard library.
     On Linux, you may need to install it via your package manager:
-    bash
 
     sudo apt install python3-tk
 
 ▶️ Usage
 
 Run the main application:
-bash
 
+```bash
 python main.py
+```
 
 This launches the GUI, where you can:
 
-    Enter host, username, and password
-
-    Connect via SSH
-
-    Execute commands
-
-    View output in real time
+    - Enter host, username, and password
+    - Connect via SSH
+    - Execute commands
+    - View output in real time
 
 📁 Project Structure
 Code
@@ -64,17 +63,15 @@ pyssh/
 ├── setup.py           # Packaging configuration
 └── CHANGELOG.md       # Version history
 
-🛠️ Requirements
+🛠️ Requirements:
 
-    Python 3.10+
-
-    customtkinter
-
-    paramiko
-
-    Pillow
+    - Python 3.10+
+    - customtkinter
+    - paramiko
+    - Pillow
 
 All installable via:
-bash
 
+```bash
 pip install -r requirements.txt
+```
