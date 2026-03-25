@@ -34,7 +34,9 @@ pip install -r requirements.txt
     tkinter is part of Python’s standard library.
     On Linux, you may need to install it via your package manager:
 
+    ```bash
     sudo apt install python3-tk
+    ```
 
 ▶️ Usage
 
