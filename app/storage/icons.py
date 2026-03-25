@@ -18,7 +18,7 @@ class Icons:
         self.online_indicator = self._load('online_indicator.png', (30, 30))
         self.offline_indicator = self._load('offline_indicator.png', (30, 30))
 
-        self.add_button =self._load('add_button.png', (40, 40))
+        self.add_button =self._load('add_button.png', (50, 50))
 
     def _load(self, file_name, size=(12, 12)):
         return ctk.CTkImage(

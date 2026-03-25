@@ -28,7 +28,7 @@ class HomePage(ctk.CTkFrame):
             fg_color="transparent",
             bg_color="transparent"
         )
-        left_banner_container.place(x=10, y=1) 
+        left_banner_container.place(x=10, y=-3) 
 
         add_device_icon = self._app.icons.add_button
         w, h = add_device_icon.cget("size")
