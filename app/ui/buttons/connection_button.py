@@ -9,6 +9,7 @@ from typing import Optional
 from app.ui.menus.SSH_action_menu import SSHActionMenu
 from app.dialogs.edit_device import EditDeviceDialog
 from app.config import PING_INTERVAL
+from app.ui.tooltips import CTkToolTip
 
 
 class ConnectionButton(ctk.CTkFrame):
@@ -27,33 +28,36 @@ class ConnectionButton(ctk.CTkFrame):
         # Toolbox buttons container
         toolbox_frame = ctk.CTkFrame(self)
         toolbox_frame.place(
-            relx=0.0, rely=1.0, anchor="sw", relwidth=0.1,
+            relx=0.0, rely=1.0, anchor="sw", relwidth=0.15,
             relheight=0.4, x=5, y=-5
         )
 
         # Delete device button
-        delete_icon = self._app.icons.delete_button
+        delete_icon = self._app.icons.red_delete_button
         w, h = delete_icon.cget('size')
 
         self.delete_connection_button = ctk.CTkButton(
             toolbox_frame, image=delete_icon, text='', fg_color="transparent",
-            hover_color="gainsboro", command=self.delete_device, width=w, height=h
+            hover_color="gray13", command=self.delete_device, width=w, height=h
         )
         self.delete_connection_button.place(anchor='center', relx=0.2, rely=0.5)
+        CTkToolTip(self.delete_connection_button, "Delete")
 
         # Edit device button
-        edit_icon = self._app.icons.edit_button
+        edit_icon = self._app.icons.white_edit_button
         w, h = edit_icon.cget('size')
 
         self.edit_connection_button = ctk.CTkButton(
             toolbox_frame, image=edit_icon, text= '', fg_color="transparent",
-            hover_color="gainsboro", command=self.edit_device, width=w, height=h
+            hover_color="gray13", command=self.edit_device, width=w, height=h
         )
         self.edit_connection_button.place(anchor='center', relx=0.5, rely=0.5)
+        CTkToolTip(self.edit_connection_button, "Edit")
 
         # SSH Commands menu
         self.menu_button = SSHActionMenu(toolbox_frame, self._app, self.device_info)
         self.menu_button.place(relx=0.8, rely=0.5, anchor='center')
+        CTkToolTip(self.menu_button, "SSH options")
 
         # Device name title
         self._device_name_label = ctk.CTkLabel(
@@ -63,10 +67,18 @@ class ConnectionButton(ctk.CTkFrame):
         self._device_name_label.place(x=5, y=2, relx=0.0, rely=0.0, anchor='nw')
 
         # Online/offline status label
-        w, h = self._app.icons.online_indicator.cget('size')
+        #w, h = self._app.icons.online_indicator.cget('size')
 
-        self.status_label = ctk.CTkLabel(self, text="", image=None, width=w, height=h)
-        self.status_label.place(relx=0.97, rely=0.5, anchor='center')
+        top_right_status_frame = ctk.CTkFrame(self, fg_color="transparent", bg_color="transparent")
+        top_right_status_frame.place(relx=1.0, rely=0.0, anchor="ne", x=-1, y=2)
+
+        self._ip_address_label = ctk.CTkLabel(top_right_status_frame, text=ip_address)
+        #self._ip_address_label.place(relx=0.0, rely=0.0, anchor="ne")
+        self._ip_address_label.pack(side="left", padx=(0, 5))
+
+        self.status_label = ctk.CTkLabel(top_right_status_frame, text="○", fg_color="transparent")
+        #self.status_label.place(x=-10, y=2, relx=1, rely=0, anchor='ne')
+        self.status_label.pack(side="left", padx=(0, 5))
 
         # Kick-start the update loop
         self._run_status_loop = True
@@ -128,10 +140,10 @@ class ConnectionButton(ctk.CTkFrame):
         self._highlighted = highlight
 
     def online_appearance(self):
-        self.status_label.configure(image=self._app.icons.online_indicator)
+        self.status_label.configure(text="●", text_color="green")
 
     def offline_appearance(self):
-        self.status_label.configure(image=self._app.icons.offline_indicator)
+        self.status_label.configure(text="●", text_color="red")
 
     def delete_device(self):
         device_name = self._app.database.get_connection_info_by_ip(self.ip_address)[1]

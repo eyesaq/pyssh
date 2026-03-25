@@ -14,12 +14,11 @@ class SSHActionMenu(ctk.CTkButton):
 
         super().__init__(
             parent,
-            image=menu_icon,
-            text='',
+            text='⋯',
             width=w,
             height=h,
             fg_color="transparent",
-            hover_color="gainsboro",
+            hover_color="gray13",
             command=self._open_menu
         )
 

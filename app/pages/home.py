@@ -16,7 +16,6 @@ class HomePage(ctk.CTkFrame):
         # List of ConnectionButton widgets
         self.connection_buttons = []
 
-        # -- Top banner --
         top_banner_frame = ctk.CTkFrame(
             self, width=340, height=50,
             bg_color="transparent", fg_color="gray21"
@@ -24,43 +23,52 @@ class HomePage(ctk.CTkFrame):
         top_banner_frame.pack(padx=5, pady=5, fill="x")
         top_banner_frame.pack_propagate(False)
 
-        # -- Add device button --
+        left_banner_container = ctk.CTkFrame(
+            top_banner_frame,
+            fg_color="transparent",
+            bg_color="transparent"
+        )
+        left_banner_container.place(x=10, y=1) 
+
+        add_device_icon = self._app.icons.add_button
+        w, h = add_device_icon.cget("size")
+
         add_device_button = ctk.CTkButton(
-            top_banner_frame, text="+", font=("Arial", 25, "bold"),
-            command=self.on_add_device,
-            bg_color="transparent", fg_color="royalblue",
-            hover_color="royalblue4", corner_radius=5
+            left_banner_container,
+            text="",
+            image=add_device_icon,
+            fg_color="transparent",
+            hover_color="gray20",
+            width=w,
+            height=h,
+            command=self.on_add_device
         )
-        add_device_button.place(
-            relwidth=0.05, relheight=0.7,
-            relx=0.01, rely=0.5, anchor='w'
-        )
+        add_device_button.pack(side="left", padx=(0, 8))
 
-        # -- Add device label --
         add_device_label = ctk.CTkLabel(
-            top_banner_frame, text="Add Device",
+            left_banner_container,
+            text="Add Device",
             font=("Arial", 20, "bold"),
-            fg_color="transparent", bg_color="transparent",
-            text_color="white"
+            text_color="white",
+            fg_color="transparent"
         )
-        add_device_label.place(relx=0.07, rely=0.5, anchor='w')
+        add_device_label.pack(side="left")
 
-        # -- Header label --
         header_label = ctk.CTkLabel(
-            top_banner_frame, text="PySSH",
+            top_banner_frame,
+            text="PySSH",
             font=("Roboto", 40, "bold"),
-            fg_color="transparent", bg_color="transparent",
-            text_color="white"
+            text_color="white",
+            fg_color="transparent"
         )
-        header_label.place(relx=0.95, rely=0.5, anchor='e')
+        header_label.place(x=-10, rely=0.5, relx=1.0, anchor="e")
 
-        # -- Scrollable device list --
         self.devices_scroll_frame = ctk.CTkScrollableFrame(self)
         self.devices_scroll_frame.pack(
             padx=10, pady=10, fill="both", expand=True
         )
 
-        # -- No devices label --
+        # No devices label
         self.no_devices_label = ctk.CTkLabel(
             self.devices_scroll_frame._parent_canvas,
             bg_color='transparent',
@@ -149,3 +157,4 @@ class HomePage(ctk.CTkFrame):
 
     def on_add_device(self):
         AddDeviceDialog(self, self._app, self.create_connection_button)
+
