@@ -30,8 +30,8 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         # -- Header --
         header_label = tk.Label(
-            self.container_frame, text=f"  {title}  ",
-            font=("Arial", 16, "bold"), fg="white", bg="gray20"
+            self.container_frame, text=f"{title}",
+            font=("Arial", 30, "bold"), fg="white", bg="gray20"
         )
         header_label.place(relx=0.5, rely=0.07, anchor=tk.CENTER)
 
