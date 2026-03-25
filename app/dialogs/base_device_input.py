@@ -93,6 +93,8 @@ class BaseDeviceInput(ctk.CTkToplevel):
             self.password_entry,
         ]
 
+        self.bind("<Escape>", lambda e: self.destroy())
+
         self.ip_address_entry.focus()
 
         for idx, field in enumerate(self._fields):
