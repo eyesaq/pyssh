@@ -48,22 +48,10 @@ python main.py
 
 This launches the GUI, where you can:
 
-    - Enter host, username, and password
-    - Connect via SSH
-    - Execute commands
-    - View output in real time
-
-📁 Project Structure
-Code
-
-pyssh/
-│
-├── app/               # Core application logic
-├── data/              # Configs or future host inventories
-├── main.py            # Application entry point
-├── requirements.txt   # Python dependencies
-├── setup.py           # Packaging configuration
-└── CHANGELOG.md       # Version history
+- Enter host, username, and password
+- Connect via SSH
+- Execute commands
+- View output in real time
 
 🛠️ Requirements:
 
