@@ -1,5 +1,6 @@
 # Standard imports
 import customtkinter as ctk
+from tkinter import messagebox
 import os
 import threading
 from typing import Optional
@@ -133,11 +134,13 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.configure(image=self._app.icons.offline_indicator)
 
     def delete_device(self):
-        print(f'Deleted device {self._app.database.get_connection_info_by_ip(self.ip_address)[0]}@{self.ip_address}')
-        self._app.database.delete_connection_by_ip(self.ip_address)
-        self.run_status_loop = False
-        self.remove_connection_button(self)
-        self.destroy()
+        device_name = self._app.database.get_connection_info_by_ip(self.ip_address)[1]
+        if messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?"):
+            print(f'Deleted device {device_name}@{self.ip_address}')
+            self._app.database.delete_connection_by_ip(self.ip_address)
+            self.run_status_loop = False
+            self.remove_connection_button(self)
+            self.destroy()
 
     def update_button_data(self, new_ip: Optional[str] = None):
         if new_ip:
