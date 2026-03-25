@@ -70,7 +70,7 @@ class ConnectionButton(ctk.CTkFrame):
         #w, h = self._app.icons.online_indicator.cget('size')
 
         top_right_status_frame = ctk.CTkFrame(self, fg_color="transparent", bg_color="transparent")
-        top_right_status_frame.place(relx=1.0, rely=0.0, anchor="ne", x=-1, y=2)
+        top_right_status_frame.place(relx=1, rely=0.0, anchor="ne", x=-1.5, y=2)
 
         self._ip_address_label = ctk.CTkLabel(top_right_status_frame, text=ip_address)
         #self._ip_address_label.place(relx=0.0, rely=0.0, anchor="ne")
@@ -125,7 +125,7 @@ class ConnectionButton(ctk.CTkFrame):
     @highlighted.setter
     def highlighted(self, highlight: bool):
         if highlight:
-            self.configure(border_width=2, border_color="white")
+            self.configure(border_width=1, border_color="#8EBBFF")
 
             self.bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection_button.invoke())
             self.bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection_button.invoke())
