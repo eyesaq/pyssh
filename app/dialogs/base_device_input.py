@@ -8,9 +8,10 @@ from typing import Callable, Optional
 from functools import partial
 
 class BaseDeviceInput(ctk.CTkToplevel):
-    def __init__(self, parent, on_completion_function: Callable, title: str, defaults: Optional[dict] = None):
+    def __init__(self, parent, on_completion_function: Callable, title: str, fast_field_overwrite: bool = True, defaults: Optional[dict] = None):
         super().__init__(parent)
         self.process_function = on_completion_function
+        self.fast_field_overwrite = fast_field_overwrite
         self.defaults = defaults or {}
 
         self.title(title)
@@ -98,8 +99,14 @@ class BaseDeviceInput(ctk.CTkToplevel):
             field.bind("<Return>", partial(self._on_enter, idx))
             field.bind("<Down>", partial(self._focus_next, idx))
             field.bind("<Up>", partial(self._focus_prev, idx))
+            if self.fast_field_overwrite:
+                field.bind("<FocusIn>", partial(self._select_all, field))
 
-    def retrieve_normalized_inputs(self):
+    def _select_all(self, field, event=None):
+        field.select_range(0, tk.END)
+        field.icursor(tk.END)
+
+    def retrieve_inputs(self):
         # Retrieve inputs
         ip_address = self.ip_address_entry.get()
         device_name = self.device_name_entry.get()
@@ -107,18 +114,12 @@ class BaseDeviceInput(ctk.CTkToplevel):
         password = self.password_entry.get()
 
         # Validate inputs
-        errors = self._validate_entries()
+        errors = self._validate_entries(ip_address, device_name, username, password)
         if errors:
             self._bad_validation(errors)
             return None
 
-        # Normalize inputs
-        normalized_ip_address = ip_address.strip()
-        normalized_device_name = device_name.strip()
-        normalized_username = username
-        normalized_password = password
-
-        return normalized_ip_address, normalized_device_name, normalized_username, normalized_password
+        return ip_address, device_name, username, password
 
     def _reset_border(self, field, event=None):
         field.configure(border_color="gray30")
@@ -135,13 +136,12 @@ class BaseDeviceInput(ctk.CTkToplevel):
         print(f'Validation Error: {main_error_message}')
 
     def process_inputs(self):
-        normalized_inputs = self.retrieve_normalized_inputs()
-        if normalized_inputs:
-            self.process_function(*normalized_inputs)
+        inputs = self.retrieve_inputs()
+        if inputs:
+            self.process_function(*inputs)
 
-    def _validate_entries(self):
+    def _validate_entries(self, ip_address, device_name, username, password):
         errors = []
-        ip_address = self.ip_address_entry.get()
 
         # todo more validation
 
