@@ -1,6 +1,8 @@
 # Standard imports
+import socket
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import messagebox
 import ipaddress
 from typing import Callable, Optional
 from functools import partial
@@ -105,25 +107,10 @@ class BaseDeviceInput(ctk.CTkToplevel):
         password = self.password_entry.get()
 
         # Validate inputs
-        invalid_inputs = self._validate_entries(ip_address)
-        if not self._validate_entries(ip_address):
-            message = "Invalid IP address format!"
-            self._bad_validation(message, (self.ip_address_entry,))
-            self.show_notification(text=message, color="red", duration=3000)
-            return
-        else:
-            print("valid IP address format!")
-            pass
-            
-        if self._app.database.ip_exists(ip_address):
-            message = "IP address already in database!"
-            self._bad_validation(message,(self.ip_address_entry,))
-            self.show_notification(text=message, color="red", duration=3000)
-            return
-        else:
-            print("IP address not already in database!")
-            pass
-
+        errors = self._validate_entries()
+        if errors:
+            self._bad_validation(errors)
+            return None
 
         # Normalize inputs
         normalized_ip_address = ip_address.strip()
@@ -136,20 +123,15 @@ class BaseDeviceInput(ctk.CTkToplevel):
     def _reset_border(self, field, event=None):
         field.configure(border_color="gray30")
 
-    # Modular notifcation for failed validation warnings
-    def show_notification(self, text: str, color: str, duration=3000):
-        notif_label = ctk.CTkLabel(self, text=text, bg_color="gray20" ,fg_color="gray20", text_color=color)
-        notif_label.place(relx=0.5, rely=0.83, anchor="center")
-        notif_label.lift()
-        print("Warning label created")
-        self.after(duration, notif_label.destroy)
-
-    def _bad_validation(self, main_error_message: str, invalid_fields: tuple[ctk.CTkEntry,...]):
-        for invalid_field in invalid_fields:
+    def _bad_validation(self, errors: list[tuple[ctk.CTkEntry, str],...]):
+        main_error_message = errors[0][1]
+        for error in errors:
+            invalid_field = error[0]
             invalid_field.configure(border_color="red")
             invalid_field.bind("<FocusIn>", partial(self._reset_border, invalid_field))
-        
+            # todo use error[1] to put first feedback under each entry
 
+        tk.messagebox.showwarning("Warning", main_error_message)
         print(f'Validation Error: {main_error_message}')
         # todo add a warning dialog
 
@@ -158,12 +140,24 @@ class BaseDeviceInput(ctk.CTkToplevel):
         if normalized_inputs:
             self.process_function(*normalized_inputs)
 
-    def _validate_entries(self, ip_address: str):
+    def _validate_entries(self):
+        errors = []
+        ip_address = self.ip_address_entry.get()
+
+        # todo more validation
+
+        # Check for valid ip address
         try:
-            ipaddress.ip_address(ip_address) 
-            return True
+            ipaddress.ip_address(ip_address)
         except ValueError:
-            return False
+
+            # Check for a valid hostname
+            try:
+                socket.gethostbyname(ip_address)
+            except socket.error:
+                errors.append((self.ip_address_entry, f"'{ip_address}' is not an IP address or hostname"))
+
+        return errors if errors else None
 
     def _focus_next(self, index, event=None):
         if index < len(self._fields) - 1:
