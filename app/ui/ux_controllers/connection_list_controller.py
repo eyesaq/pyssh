@@ -15,12 +15,13 @@ class ConnectionListController:
     # Keyboard bindings
     # ---------------------------
     def _bind_keyboard(self):
+        # --- Change selection ---
         self._app.bind("<Up>", lambda e: self.move_selection(-1))
         self._app.bind("<Down>", lambda e: self.move_selection(1))
 
-        self._app.bind("<e>", lambda e: self._invoke("edit"))
-        self._app.bind("<Delete>", lambda e: self._invoke("delete"))
-        self._app.bind("<m>", lambda e: self._invoke("menu"))
+        # --- Add Device shortcut ---
+        self._app.bind("<a>", lambda e: self._home.on_add_device())
+        self._app.bind("<A>", lambda e: self._home.on_add_device())
 
     def _invoke(self, action):
         if self._selected_index is None:
@@ -48,9 +49,9 @@ class ConnectionListController:
         ]
 
         for ev in mouse_events:
-            self._app.bind(ev, self._maybe_clear_selection, add="+")
+            self._app.bind(ev, self._handle_click_outside_selection, add="+")
 
-    def _maybe_clear_selection(self, event):
+    def _handle_click_outside_selection(self, event):
         widget = event.widget
 
         # Ignore clicks on buttons or their children
