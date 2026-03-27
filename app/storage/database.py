@@ -19,47 +19,38 @@ class Database:
 
     def _init_database(self) -> None:
         """Create the database table if it doesn't exist"""
-        try:
-            with self._connect() as conn:
-                conn.execute(
-                    """
-                    CREATE TABLE IF NOT EXISTS connections (
-                        ip_address TEXT PRIMARY KEY,
-                        device_name TEXT NOT NULL,
-                        username TEXT NOT NULL,
-                        password TEXT NOT NULL
-                    )
-                    """
+        with self._connect() as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS connections (
+                    ip_address TEXT PRIMARY KEY,
+                    device_name TEXT NOT NULL,
+                    username TEXT NOT NULL,
+                    password TEXT NOT NULL
                 )
-        except sqlite3.Error as e:
-            raise Exception(f"[DB ERROR] Failed to initialise database: {e}")
+                """
+            )
 
     def get_connection_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
         """Return the full row for a given IP address as a tuple."""
-        try:
-            with self._connect() as conn:
-                row = conn.execute(
-                    """
-                    SELECT ip_address, device_name, username, password
-                    FROM connections
-                    WHERE ip_address = ?
-                    """,
-                    (ip_address,),
-                ).fetchone()
-            return row
-        except sqlite3.Error as e:
-            raise Exception(f"[DB ERROR] Failed to retrieve connection for '{ip_address}': {e}")
+        with self._connect() as conn:
+            row = conn.execute(
+                """
+                SELECT ip_address, device_name, username, password
+                FROM connections
+                WHERE ip_address = ?
+                """,
+                (ip_address,),
+            ).fetchone()
+        return row
 
     def get_all_ip_addresses(self) -> list[str]:
         """Return a list of all IP addresses in the database."""
-        try:
-            with self._connect() as conn:
-                rows = conn.execute(
-                    "SELECT ip_address FROM connections"
-                ).fetchall()
-            return [row[0] for row in rows]
-        except sqlite3.Error as e:
-            raise Exception(f"[DB ERROR] Failed to retrieve IP addresses: {e}")
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT ip_address FROM connections"
+            ).fetchall()
+        return [row[0] for row in rows]
 
     def add_connection(
             self,
@@ -153,13 +144,10 @@ class Database:
 
     def recreate_database_file(self) -> None:
         """Completely delete the database file and recreate a fresh one."""
-        try:
-            if self._db_path.exists():
-                self._db_path.unlink()
-            self._init_database()
-            print("[DB] Database file recreated")
-        except OSError as e:
-            raise Exception(f"[DB ERROR] Failed to delete database file: {e}")
+        if self._db_path.exists():
+            self._db_path.unlink()
+        self._init_database()
+        print("[DB] Database file recreated")
 
     def delete_connection_by_ip(self, ip_address: str) -> bool:
         """Delete a connection record by IP address. Returns True if successful."""
