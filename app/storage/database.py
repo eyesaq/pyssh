@@ -153,11 +153,13 @@ class Database:
 
     def recreate_database_file(self) -> None:
         """Completely delete the database file and recreate a fresh one."""
-        if self._db_path.exists():
-            self._db_path.unlink()  # Delete the file
-
-        # Recreate the database with the schema
-        self._init_database()
+        try:
+            if self._db_path.exists():
+                self._db_path.unlink()
+            self._init_database()
+            print("[DB] Database file recreated")
+        except OSError as e:
+            raise Exception(f"[DB ERROR] Failed to delete database file: {e}")
 
     def delete_connection_by_ip(self, ip_address: str) -> None:
         """Delete a connection record by its IP address."""
