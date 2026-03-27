@@ -131,9 +131,9 @@ class Database:
                     params,
                 )
 
-            if cursor.rowcount == 0:
-                print(f"[DB WARNING] No connection found for '{old_ip}' — nothing updated")
-                return False
+                if cursor.rowcount == 0:
+                    print(f"[DB WARNING] No connection found for '{old_ip}' — nothing updated")
+                    return False
 
             print(f"[DB] Updated connection '{old_ip}'" + (f" -> '{new_ip}'" if new_ip else ""))
             return True
@@ -158,9 +158,9 @@ class Database:
                     (ip_address,),
                 )
 
-            if cursor.rowcount == 0:
-                print(f"[DB WARNING] No connection found for '{ip_address}' — nothing deleted")
-                return False
+                if cursor.rowcount == 0:
+                    print(f"[DB WARNING] No connection found for '{ip_address}' — nothing deleted")
+                    return False
 
             print(f"[DB] Deleted connection '{ip_address}'")
             return True
