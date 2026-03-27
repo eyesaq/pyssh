@@ -52,12 +52,14 @@ class Database:
 
     def get_all_ip_addresses(self) -> list[str]:
         """Return a list of all IP addresses in the database."""
-        with self._connect() as conn:
-            rows = conn.execute(
-                "SELECT ip_address FROM connections"
-            ).fetchall()
-
-        return [row[0] for row in rows]
+        try:
+            with self._connect() as conn:
+                rows = conn.execute(
+                    "SELECT ip_address FROM connections"
+                ).fetchall()
+            return [row[0] for row in rows]
+        except sqlite3.Error as e:
+            raise Exception(f"[DB ERROR] Failed to retrieve IP addresses: {e}")
 
     def add_connection(
             self,
