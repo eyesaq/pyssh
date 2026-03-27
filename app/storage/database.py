@@ -83,14 +83,6 @@ class Database:
             ).fetchone()
         return row is not None
 
-    def get_all_connections(self) -> list[tuple]:
-        """Retrieve all connections as a list of tuples."""
-        with self._connect() as conn:
-            rows = conn.execute(
-                "SELECT ip_address, device_name, username, password FROM connections"
-            ).fetchall()
-        return rows
-
     def update_connection_by_ip(
             self,
             old_ip: str,
