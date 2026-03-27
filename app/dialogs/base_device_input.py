@@ -123,7 +123,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         errors = self._validate_entries(ip_address, device_name, username, password)
         if errors:
-            self._bad_validation(errors)
+            self.bad_validation(errors)
             return None
 
         return ip_address, device_name, username, password
@@ -132,7 +132,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
         field.configure(border_color="gray30")
         self._error_labels[field].configure(text="")
 
-    def _bad_validation(self, errors: dict):
+    def bad_validation(self, errors: dict[ctk.CTkEntry, list[str]]):
         first_error_field = None
 
         for field, field_errors in errors.items():
