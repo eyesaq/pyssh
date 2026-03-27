@@ -98,7 +98,6 @@ class Database:
             rows = conn.execute(
                 "SELECT ip_address, device_name, username, password FROM connections"
             ).fetchall()
-
         return rows
 
     def update_connection_by_ip(
@@ -108,11 +107,8 @@ class Database:
             device_name: str | None = None,
             username: str | None = None,
             password: str | None = None,
-    ) -> None:
-        """
-        Update one or more fields for a device identified by its old IP address.
-        Allows changing the IP address itself.
-        """
+    ) -> bool:
+        """Update one or more fields for a device. Returns True if successful."""
         updates = []
         params = []
 
@@ -133,15 +129,27 @@ class Database:
             params.append(password)
 
         if not updates:
-            return  # nothing to update
+            return True  # nothing to update
 
         params.append(old_ip)
 
-        with self._connect() as conn:
-            conn.execute(
-                f"UPDATE connections SET {', '.join(updates)} WHERE ip_address = ?",
-                params,
-            )
+        try:
+            with self._connect() as conn:
+                cursor = conn.execute(
+                    f"UPDATE connections SET {', '.join(updates)} WHERE ip_address = ?",
+                    params,
+                )
+
+            if cursor.rowcount == 0:
+                print(f"[DB WARNING] No connection found for '{old_ip}' — nothing updated")
+                return False
+
+            print(f"[DB] Updated connection '{old_ip}'" + (f" -> '{new_ip}'" if new_ip else ""))
+            return True
+
+        except sqlite3.Error as e:
+            print(f"[DB ERROR] Failed to update connection '{old_ip}': {e}")
+            return False
 
     def recreate_database_file(self) -> None:
         """Completely delete the database file and recreate a fresh one."""
