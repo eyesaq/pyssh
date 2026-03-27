@@ -18,6 +18,7 @@ class Database:
         return sqlite3.connect(self._db_path)
 
     def _init_database(self) -> None:
+        """Create the database table if it doesn't exist"""
         with self._connect() as conn:
             conn.execute(
                 """
@@ -41,7 +42,6 @@ class Database:
                 """,
                 (ip_address,),
             ).fetchone()
-
         return row
 
     def get_all_ip_addresses(self) -> list[str]:
@@ -50,7 +50,6 @@ class Database:
             rows = conn.execute(
                 "SELECT ip_address FROM connections"
             ).fetchall()
-
         return [row[0] for row in rows]
 
     def add_connection(
@@ -59,13 +58,22 @@ class Database:
             device_name: str,
             username: str,
             password: str,
-    ) -> None:
-        """Create a new connection record"""
-        with self._connect() as conn:
+    ) -> bool:
+        """Create a new connection record."""
+        try:
+            with self._connect() as conn:
                 conn.execute(
                     "INSERT INTO connections (ip_address, device_name, username, password) VALUES (?, ?, ?, ?)",
                     (ip_address, device_name, username, password),
                 )
+            print(f"[DB] Saved connection: '{device_name}'@'{ip_address}'")
+            return True
+        except sqlite3.IntegrityError:
+            print(f"[DB ERROR] Connection '{ip_address}' already exists — not saved")
+            return False
+        except sqlite3.Error as e:
+            print(f"[DB ERROR] Failed to save connection '{ip_address}': {e}")
+            return False
 
     def ip_exists(self, ip_address: str) -> bool:
         with self._connect() as conn:
@@ -75,15 +83,6 @@ class Database:
             ).fetchone()
         return row is not None
 
-    def get_all_connections(self) -> list[tuple]:
-        """Retrieve all connections as a list of tuples."""
-        with self._connect() as conn:
-            rows = conn.execute(
-                "SELECT ip_address, device_name, username, password FROM connections"
-            ).fetchall()
-
-        return rows
-
     def update_connection_by_ip(
             self,
             old_ip: str,
@@ -91,11 +90,8 @@ class Database:
             device_name: str | None = None,
             username: str | None = None,
             password: str | None = None,
-    ) -> None:
-        """
-        Update one or more fields for a device identified by its old IP address.
-        Allows changing the IP address itself.
-        """
+    ) -> bool:
+        """Update one or more fields for a device. Returns True if successful."""
         updates = []
         params = []
 
@@ -116,28 +112,51 @@ class Database:
             params.append(password)
 
         if not updates:
-            return  # nothing to update
+            return True  # nothing to update
 
         params.append(old_ip)
 
-        with self._connect() as conn:
-            conn.execute(
-                f"UPDATE connections SET {', '.join(updates)} WHERE ip_address = ?",
-                params,
-            )
+        try:
+            with self._connect() as conn:
+                cursor = conn.execute(
+                    f"UPDATE connections SET {', '.join(updates)} WHERE ip_address = ?",
+                    params,
+                )
+
+                if cursor.rowcount == 0:
+                    print(f"[DB WARNING] No connection found for '{old_ip}' — nothing updated")
+                    return False
+
+            print(f"[DB] Updated connection '{old_ip}'" + (f" -> '{new_ip}'" if new_ip else ""))
+            return True
+
+        except sqlite3.Error as e:
+            print(f"[DB ERROR] Failed to update connection '{old_ip}': {e}")
+            return False
 
     def recreate_database_file(self) -> None:
         """Completely delete the database file and recreate a fresh one."""
         if self._db_path.exists():
-            self._db_path.unlink()  # Delete the file
-
-        # Recreate the database with the schema
+            self._db_path.unlink()
         self._init_database()
+        print("[DB] Database file recreated")
 
-    def delete_connection_by_ip(self, ip_address: str) -> None:
-        """Delete a connection record by its IP address."""
-        with self._connect() as conn:
-            conn.execute(
-                "DELETE FROM connections WHERE ip_address = ?",
-                (ip_address,),
-            )
+    def delete_connection_by_ip(self, ip_address: str) -> bool:
+        """Delete a connection record by IP address. Returns True if successful."""
+        try:
+            with self._connect() as conn:
+                cursor = conn.execute(
+                    "DELETE FROM connections WHERE ip_address = ?",
+                    (ip_address,),
+                )
+
+                if cursor.rowcount == 0:
+                    print(f"[DB WARNING] No connection found for '{ip_address}' — nothing deleted")
+                    return False
+
+            print(f"[DB] Deleted connection '{ip_address}'")
+            return True
+
+        except sqlite3.Error as e:
+            print(f"[DB ERROR] Failed to delete connection '{ip_address}': {e}")
+            return False

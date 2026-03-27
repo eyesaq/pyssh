@@ -15,6 +15,5 @@ class AddDeviceDialog(BaseDeviceInput):
             print(f"IP address '{ip_address}' is already assigned to another device")
         else:
             self._app.database.add_connection(ip_address, device_name, username, password)
-            print(f"Saved connection: '{device_name}'@'{ip_address}'")
             self._on_connection_creation(ip_address)
             self.destroy()
