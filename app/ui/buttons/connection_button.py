@@ -148,7 +148,6 @@ class ConnectionButton(ctk.CTkFrame):
     def delete_device(self):
         device_name = self._app.database.get_connection_info_by_ip(self.ip_address)[1]
         if messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?"):
-            print(f'Deleted device {device_name}@{self.ip_address}')
             self._app.database.delete_connection_by_ip(self.ip_address)
             self.run_status_loop = False
             self.remove_connection_button(self)
