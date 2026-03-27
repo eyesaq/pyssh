@@ -32,7 +32,7 @@ class Database:
                     """
                 )
         except sqlite3.Error as e:
-            print(f"[DB ERROR] Failed to initialise database: {e}")
+            raise Exception(f"[DB ERROR] Failed to initialise database: {e}")
 
     def get_connection_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
         """Return the full row for a given IP address as a tuple."""
