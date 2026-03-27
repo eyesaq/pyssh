@@ -67,13 +67,22 @@ class Database:
             device_name: str,
             username: str,
             password: str,
-    ) -> None:
-        """Create a new connection record"""
-        with self._connect() as conn:
+    ) -> bool:
+        """Create a new connection record."""
+        try:
+            with self._connect() as conn:
                 conn.execute(
                     "INSERT INTO connections (ip_address, device_name, username, password) VALUES (?, ?, ?, ?)",
                     (ip_address, device_name, username, password),
                 )
+            print(f"[DB] Saved connection: '{device_name}'@'{ip_address}'")
+            return True
+        except sqlite3.IntegrityError:
+            print(f"[DB ERROR] Connection '{ip_address}' already exists — not saved")
+            return False
+        except sqlite3.Error as e:
+            print(f"[DB ERROR] Failed to save connection '{ip_address}': {e}")
+            return False
 
     def ip_exists(self, ip_address: str) -> bool:
         with self._connect() as conn:
