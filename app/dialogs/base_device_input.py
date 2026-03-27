@@ -20,7 +20,8 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         self.title(title)
         self.geometry("250x380")
-        self.resizable(False, False)
+        # todo fix this issue below, temp workaround by hashing it out
+        #self.resizable(False, False)
 
         # -- Main container --
         self.container_frame = ctk.CTkFrame(
