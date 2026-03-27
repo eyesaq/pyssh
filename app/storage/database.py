@@ -36,17 +36,19 @@ class Database:
 
     def get_connection_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
         """Return the full row for a given IP address as a tuple."""
-        with self._connect() as conn:
-            row = conn.execute(
-                """
-                SELECT ip_address, device_name, username, password
-                FROM connections
-                WHERE ip_address = ?
-                """,
-                (ip_address,),
-            ).fetchone()
-
-        return row
+        try:
+            with self._connect() as conn:
+                row = conn.execute(
+                    """
+                    SELECT ip_address, device_name, username, password
+                    FROM connections
+                    WHERE ip_address = ?
+                    """,
+                    (ip_address,),
+                ).fetchone()
+            return row
+        except sqlite3.Error as e:
+            raise Exception(f"[DB ERROR] Failed to retrieve connection for '{ip_address}': {e}")
 
     def get_all_ip_addresses(self) -> list[str]:
         """Return a list of all IP addresses in the database."""
