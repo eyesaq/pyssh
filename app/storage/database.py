@@ -161,10 +161,22 @@ class Database:
         except OSError as e:
             raise Exception(f"[DB ERROR] Failed to delete database file: {e}")
 
-    def delete_connection_by_ip(self, ip_address: str) -> None:
-        """Delete a connection record by its IP address."""
-        with self._connect() as conn:
-            conn.execute(
-                "DELETE FROM connections WHERE ip_address = ?",
-                (ip_address,),
-            )
+    def delete_connection_by_ip(self, ip_address: str) -> bool:
+        """Delete a connection record by IP address. Returns True if successful."""
+        try:
+            with self._connect() as conn:
+                cursor = conn.execute(
+                    "DELETE FROM connections WHERE ip_address = ?",
+                    (ip_address,),
+                )
+
+            if cursor.rowcount == 0:
+                print(f"[DB WARNING] No connection found for '{ip_address}' — nothing deleted")
+                return False
+
+            print(f"[DB] Deleted connection '{ip_address}'")
+            return True
+
+        except sqlite3.Error as e:
+            print(f"[DB ERROR] Failed to delete connection '{ip_address}': {e}")
+            return False
