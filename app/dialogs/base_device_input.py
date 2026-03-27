@@ -136,7 +136,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
         """Mark a single field as invalid with an error message."""
         field.configure(border_color="red")
         self._error_labels[field].configure(text=error)
-        field.bind("<FocusIn>", partial(self._reset_field, field))
+        field.bind("<Key>", partial(self._reset_field, field))
 
     def _apply_validation_errors(self, errors: dict[ctk.CTkEntry, list[str]]):
         """Apply a full error dict, clearing fields with no errors."""
