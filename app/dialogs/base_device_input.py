@@ -152,7 +152,8 @@ class BaseDeviceInput(ctk.CTkToplevel):
             first_error_field.focus()
 
     def raise_validation_error(self, field: ctk.CTkEntry, error: str):
-        """Flag a custom validation error on a chosen field."""
+        if field not in self._error_labels:
+            raise ValueError("Field is not registered with this form")
         self._mark_field_error(field, error)
         field.focus()
 
