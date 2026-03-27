@@ -18,17 +18,21 @@ class Database:
         return sqlite3.connect(self._db_path)
 
     def _init_database(self) -> None:
-        with self._connect() as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS connections (
-                    ip_address TEXT PRIMARY KEY,
-                    device_name TEXT NOT NULL,
-                    username TEXT NOT NULL,
-                    password TEXT NOT NULL
+        """Create the database table if it doesn't exist"""
+        try:
+            with self._connect() as conn:
+                conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS connections (
+                        ip_address TEXT PRIMARY KEY,
+                        device_name TEXT NOT NULL,
+                        username TEXT NOT NULL,
+                        password TEXT NOT NULL
+                    )
+                    """
                 )
-                """
-            )
+        except sqlite3.Error as e:
+            print(f"[DB ERROR] Failed to initialise database: {e}")
 
     def get_connection_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
         """Return the full row for a given IP address as a tuple."""
