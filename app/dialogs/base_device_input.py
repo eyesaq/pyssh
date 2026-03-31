@@ -12,7 +12,14 @@ from app.config import MAX_DEVICE_NAME_LENGTH
 
 
 class BaseDeviceInput(ctk.CTkToplevel):
-    def __init__(self, parent, on_completion_function: Callable, title: str, fast_field_overwrite: bool = True, defaults: Optional[dict] = None):
+    def __init__(
+            self,
+            parent,
+            on_completion_function: Callable,
+            title: str,
+            fast_field_overwrite: bool = True,
+            defaults: Optional[dict] = None
+    ):
         super().__init__(parent)
         self.process_function = on_completion_function
         self.fast_field_overwrite = fast_field_overwrite
