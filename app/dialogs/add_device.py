@@ -6,9 +6,10 @@ from app.dialogs.base_device_input import BaseDeviceInput
 
 class AddDeviceDialog(BaseDeviceInput):
     def __init__(self, parent, app, on_connection_creation: Callable):
-        super().__init__(parent, self.save_device, 'Add Device')
         self._app = app
         self._on_connection_creation = on_connection_creation
+
+        super().__init__(parent, self.save_device, 'Add Device')
 
     def save_device(self, ip_address, device_name, username, password):
         if self._app.database.ip_exists(ip_address):
