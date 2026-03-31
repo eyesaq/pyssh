@@ -103,15 +103,10 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         self.bind("<Escape>", lambda e: self.destroy())
 
-        # Makes sure os focuses THIS window and not the parent window
-        self.lift()
-        self.focus_force()
-        self.grab_set()
-
-        # 50ms delay
-        self.after(50, lambda: self.ip_address_entry.focus())
-        # Added for debug
-        print("UX Initialized, bindings set")
+        # resizable(False, False) triggers a secondary remap event on Windows which
+        # interrupts child widget focus. A short delay allows the window manager to
+        # settle before focusing the first field.
+        self.after(25, self.ip_address_entry.focus)
 
         for idx, field in enumerate(self._fields):
             field.bind("<Return>", partial(self._on_enter, idx))
