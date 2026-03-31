@@ -88,30 +88,31 @@ class HomePage(ctk.CTkFrame):
     # ---------------------------------------------------------
 
     def scroll_into_view(self, widget):
-        """Smooth scroll animation (controller calls this)."""
         canvas = self.devices_scroll_frame._parent_canvas
 
-        widget_y = widget.winfo_rooty()
-        canvas_y = canvas.winfo_rooty()
+        # Get widget position relative to the scrollable interior
+        widget_y = widget.winfo_y()
+        widget_h = widget.winfo_height()
         canvas_h = canvas.winfo_height()
+        scroll_total = canvas.winfo_height()
 
-        if canvas_y <= widget_y <= canvas_y + canvas_h - widget.winfo_height():
+        # Total scrollable height
+        total_h = self.devices_scroll_frame._parent_canvas.bbox("all")
+        if not total_h:
             return
+        total_h = total_h[3]
 
-        bbox = canvas.bbox(widget)
-        if not bbox:
-            return
+        # Current visible top/bottom in pixels
+        top, bottom = canvas.yview()
+        visible_top = top * total_h
+        visible_bottom = bottom * total_h
 
-        target = bbox[1] / canvas.bbox("all")[3]
-        current = canvas.yview()[0]
-        delta = (target - current) / 8
-
-        def animate(i=0):
-            if i < 8:
-                canvas.yview_moveto(current + delta * i)
-                canvas.after(10, lambda: animate(i + 1))
-
-        animate()
+        if widget_y < visible_top:
+            # Widget is above the visible area
+            canvas.yview_moveto(widget_y / total_h)
+        elif widget_y + widget_h > visible_bottom:
+            # Widget is below the visible area
+            canvas.yview_moveto((widget_y + widget_h - canvas_h) / total_h)
 
     # ---------------------------------------------------------
     # Device management
