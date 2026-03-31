@@ -13,6 +13,7 @@ class AddDeviceDialog(BaseDeviceInput):
     def save_device(self, ip_address, device_name, username, password):
         if self._app.database.ip_exists(ip_address):
             print(f"IP address '{ip_address}' is already assigned to another device")
+            self.raise_validation_error(self.ip_address_entry,"IP already exists in database")
         else:
             self._app.database.add_connection(ip_address, device_name, username, password)
             print(f"Saved connection: '{device_name}'@'{ip_address}'")

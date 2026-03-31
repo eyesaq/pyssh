@@ -123,7 +123,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         errors = self._validate_entries(ip_address, device_name, username, password)
         if errors:
-            self._bad_validation(errors)
+            self._apply_validation_errors(errors)
             return None
 
         return ip_address, device_name, username, password
@@ -132,19 +132,30 @@ class BaseDeviceInput(ctk.CTkToplevel):
         field.configure(border_color="gray30")
         self._error_labels[field].configure(text="")
 
-    def _bad_validation(self, errors: dict):
-        first_error_field = None
+    def _mark_field_error(self, field: ctk.CTkEntry, error: str):
+        """Mark a single field as invalid with an error message."""
+        field.configure(border_color="red")
+        self._error_labels[field].configure(text=error)
+        field.bind("<Key>", partial(self._reset_field, field))
 
+    def _apply_validation_errors(self, errors: dict[ctk.CTkEntry, list[str]]):
+        """Apply a full error dict, clearing fields with no errors."""
+        first_error_field = None
         for field, field_errors in errors.items():
             if field_errors:
                 if first_error_field is None:
                     first_error_field = field
-                field.configure(border_color="red")
-                self._error_labels[field].configure(text=field_errors[0])
-                field.bind("<FocusIn>", partial(self._reset_field, field))
-                self.focus()
+                self._mark_field_error(field, field_errors[0])
             else:
-                self._error_labels[field].configure(text="")
+                self._reset_field(field)
+        if first_error_field:
+            first_error_field.focus()
+
+    def raise_validation_error(self, field: ctk.CTkEntry, error: str):
+        if field not in self._error_labels:
+            raise ValueError("Field is not registered with this form")
+        self._mark_field_error(field, error)
+        field.focus()
 
     def process_inputs(self):
         inputs = self.retrieve_inputs()
