@@ -102,7 +102,16 @@ class BaseDeviceInput(ctk.CTkToplevel):
         }
 
         self.bind("<Escape>", lambda e: self.destroy())
-        self.ip_address_entry.focus()
+
+        # Makes sure os focuses THIS window and not the parent window
+        self.lift()
+        self.focus_force()
+        self.grab_set()
+
+        # 50ms delay
+        self.after(50, lambda: self.ip_address_entry.focus())
+        # Added for debug
+        print("UX Initialized, bindings set")
 
         for idx, field in enumerate(self._fields):
             field.bind("<Return>", partial(self._on_enter, idx))
