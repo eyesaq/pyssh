@@ -16,6 +16,5 @@ class AddDeviceDialog(BaseDeviceInput):
             self.raise_validation_error(self.ip_address_entry,"IP already exists in database")
         else:
             self._app.database.add_connection(ip_address, device_name, username, password)
-            print(f"Saved connection: '{device_name}'@'{ip_address}'")
             self._on_connection_creation(ip_address)
             self.destroy()
