@@ -85,6 +85,7 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         return entry, error_label
 
+    # -- Lifecycle --
     def _on_map(self, event):
         self.unbind("<Map>")
         self._init_ux()
@@ -122,57 +123,26 @@ class BaseDeviceInput(ctk.CTkToplevel):
             if self.fast_field_overwrite:
                 field.bind("<FocusIn>", partial(self._select_all, field))
 
+    # -- Navigation --
     def _select_all(self, field, event=None):
         field.select_range(0, tk.END)
         field.icursor(tk.END)
 
-    def retrieve_inputs(self):
-        ip_address = self.ip_address_entry.get()
-        device_name = self.device_name_entry.get()
-        username = self.username_entry.get()
-        password = self.password_entry.get()
+    def _focus_next(self, index, event=None):
+        if index < len(self._fields) - 1:
+            self._fields[index + 1].focus()
 
-        errors = self._validate_entries(ip_address, device_name, username, password)
-        if errors:
-            self._apply_validation_errors(errors)
-            return None
+    def _focus_prev(self, index, event=None):
+        if index > 0:
+            self._fields[index - 1].focus()
 
-        return ip_address, device_name, username, password
+    def _on_enter(self, index, event=None):
+        if index < len(self._fields) - 1:
+            self._fields[index + 1].focus()
+        else:
+            self.action_button.invoke()
 
-    def _reset_field(self, field, event=None):
-        field.configure(border_color="gray30")
-        self._error_labels[field].configure(text="")
-
-    def _mark_field_error(self, field: ctk.CTkEntry, error: str):
-        """Mark a single field as invalid with an error message."""
-        field.configure(border_color="red")
-        self._error_labels[field].configure(text=error)
-        field.bind("<Key>", partial(self._reset_field, field))
-
-    def _apply_validation_errors(self, errors: dict[ctk.CTkEntry, list[str]]):
-        """Apply a full error dict, clearing fields with no errors."""
-        first_error_field = None
-        for field, field_errors in errors.items():
-            if field_errors:
-                if first_error_field is None:
-                    first_error_field = field
-                self._mark_field_error(field, field_errors[0])
-            else:
-                self._reset_field(field)
-        if first_error_field:
-            first_error_field.focus()
-
-    def raise_validation_error(self, field: ctk.CTkEntry, error: str):
-        if field not in self._error_labels:
-            raise ValueError("Field is not registered with this form")
-        self._mark_field_error(field, error)
-        field.focus()
-
-    def process_inputs(self):
-        inputs = self.retrieve_inputs()
-        if inputs:
-            self.process_function(*inputs)
-
+    # Validation
     def _validate_entries(self, ip_address, device_name, username, password):
         errors = {
             self.ip_address_entry: [],
@@ -217,16 +187,50 @@ class BaseDeviceInput(ctk.CTkToplevel):
 
         return errors if any(errors.values()) else None
 
-    def _focus_next(self, index, event=None):
-        if index < len(self._fields) - 1:
-            self._fields[index + 1].focus()
+    def _apply_validation_errors(self, errors: dict[ctk.CTkEntry, list[str]]):
+        """Apply a full error dict, clearing fields with no errors."""
+        first_error_field = None
+        for field, field_errors in errors.items():
+            if field_errors:
+                if first_error_field is None:
+                    first_error_field = field
+                self._mark_field_error(field, field_errors[0])
+            else:
+                self._reset_field(field)
+        if first_error_field:
+            first_error_field.focus()
 
-    def _focus_prev(self, index, event=None):
-        if index > 0:
-            self._fields[index - 1].focus()
+    def _mark_field_error(self, field: ctk.CTkEntry, error: str):
+        """Mark a single field as invalid with an error message."""
+        field.configure(border_color="red")
+        self._error_labels[field].configure(text=error)
+        field.bind("<Key>", partial(self._reset_field, field))
 
-    def _on_enter(self, index, event=None):
-        if index < len(self._fields) - 1:
-            self._fields[index + 1].focus()
-        else:
-            self.action_button.invoke()
+    def _reset_field(self, field, event=None):
+        field.configure(border_color="gray30")
+        self._error_labels[field].configure(text="")
+
+    def raise_validation_error(self, field: ctk.CTkEntry, error: str):
+        if field not in self._error_labels:
+            raise ValueError("Field is not registered with this form")
+        self._mark_field_error(field, error)
+        field.focus()
+
+    # -- Submission --
+    def retrieve_inputs(self):
+        ip_address = self.ip_address_entry.get()
+        device_name = self.device_name_entry.get()
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        errors = self._validate_entries(ip_address, device_name, username, password)
+        if errors:
+            self._apply_validation_errors(errors)
+            return None
+
+        return ip_address, device_name, username, password
+
+    def process_inputs(self):
+        inputs = self.retrieve_inputs()
+        if inputs:
+            self.process_function(*inputs)
