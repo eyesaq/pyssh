@@ -6,6 +6,7 @@ from app.dialogs.add_device import AddDeviceDialog
 from app.ui.buttons.connection_button import ConnectionButton
 from app.config import PING_LOG
 from app.ui.ux_controllers.connection_list_controller import ConnectionListController
+from app.ui.frames.scrollable_frame import ScrollableFrame
 
 
 class HomePage(ctk.CTkFrame):
@@ -63,14 +64,14 @@ class HomePage(ctk.CTkFrame):
         )
         header_label.place(x=-10, rely=0.5, relx=1.0, anchor="e")
 
-        self.devices_scroll_frame = ctk.CTkScrollableFrame(self)
+        self.devices_scroll_frame = ScrollableFrame(self)
         self.devices_scroll_frame.pack(
             padx=10, pady=10, fill="both", expand=True
         )
 
         # No devices label
         self.no_devices_label = ctk.CTkLabel(
-            self.devices_scroll_frame._parent_canvas,
+            self.devices_scroll_frame.canvas,
             bg_color='transparent',
             text="No Devices",
             font=("Arial", 18, "bold"),
@@ -88,16 +89,15 @@ class HomePage(ctk.CTkFrame):
     # ---------------------------------------------------------
 
     def scroll_into_view(self, widget):
-        canvas = self.devices_scroll_frame._parent_canvas
+        canvas = self.devices_scroll_frame.canvas
 
         # Get widget position relative to the scrollable interior
         widget_y = widget.winfo_y()
         widget_h = widget.winfo_height()
         canvas_h = canvas.winfo_height()
-        scroll_total = canvas.winfo_height()
 
         # Total scrollable height
-        total_h = self.devices_scroll_frame._parent_canvas.bbox("all")
+        total_h = self.devices_scroll_frame.canvas.bbox("all")
         if not total_h:
             return
         total_h = total_h[3]
