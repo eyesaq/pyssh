@@ -14,8 +14,8 @@ class ConnectionListController:
     # ---------------------------
     def _bind_keyboard(self):
         # --- Change selection ---
-        self._app.bind("<Up>", lambda e: self.move_selection(-1))
-        self._app.bind("<Down>", lambda e: self.move_selection(1))
+        self._app.bind("<Up>", self.handle_up_key)
+        self._app.bind("<Down>", self.handle_down_key)
 
         # --- Add Device shortcut ---
         self._app.bind("<a>", lambda e: self._home.on_add_device())
@@ -85,20 +85,24 @@ class ConnectionListController:
         btn.focus_set()
         self._home.scroll_into_view(btn)
 
-    def move_selection(self, increment_value: int):
+    def handle_up_key(self, event):
+        self.move_selection(-1, up_key=True)
+
+    def handle_down_key(self, event):
+        self.move_selection(1, up_key=False)
+
+    def move_selection(self, increment_value: int, up_key=True):
         buttons = self._home.connection_buttons
         if not buttons:
             return
 
-        # Deselect old selection
-        previous_selection = self.currently_selected_button_index
-        self.clear_selection()
+        selection_index = self.currently_selected_button_index
 
         # Compute new index
-        if previous_selection is None:
-            target_index = 0
+        if selection_index is None:
+            target_index = -1 if up_key else 0
         else:
-            target_index = (previous_selection + increment_value) % len(buttons)
+            target_index = (selection_index + increment_value) % len(buttons)
 
         self.select_button(target_index)
 
@@ -121,16 +125,11 @@ class ConnectionListController:
     # ---------------------------
     def on_connection_button_removed(self, button):
         buttons = self._home.connection_buttons
+        selection_index = self.currently_selected_button_index
 
-        # Deselect old selection
-        previous_selection = self.currently_selected_button_index
-        self.clear_selection()
-
-        if previous_selection is not None and len(buttons) > 1:
-            if button is buttons[previous_selection]:
-                if previous_selection == 0:
+        if selection_index is not None and len(buttons) > 1:
+            if button is buttons[selection_index]:
+                if selection_index == 0:
                     self.select_button(1)
-
-                # Select one button up if a button in the middle is deleted.
                 else:
-                    self.select_button(previous_selection - 1)
+                    self.select_button(selection_index - 1)
