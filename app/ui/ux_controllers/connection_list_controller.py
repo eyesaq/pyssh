@@ -6,8 +6,6 @@ class ConnectionListController:
         self._app = app
         self._home = home_page
 
-        self._selected_index = None
-
         self._bind_keyboard()
         self._bind_mouse()
 
@@ -24,10 +22,9 @@ class ConnectionListController:
         self._app.bind("<A>", lambda e: self._home.on_add_device())
 
     def _invoke(self, action):
-        if self._selected_index is None:
+        btn = self.currently_selected_button
+        if btn is None:
             return
-
-        btn = self._home.connection_buttons[self._selected_index]
 
         if action == "edit":
             btn.edit_connection_button.invoke()
@@ -66,37 +63,74 @@ class ConnectionListController:
     # ---------------------------
     # Selection logic
     # ---------------------------
+    @property
+    def currently_selected_button_index(self):
+        for index, button in enumerate(self._home.connection_buttons):
+            if button.highlighted:
+                return index
+        return None
+
+    @property
+    def currently_selected_button(self):
+        for button in self._home.connection_buttons:
+            if button.highlighted:
+                return button
+        return None
+
+    def select_button(self, index):
+        self.clear_selection()
+
+        btn = self._home.connection_buttons[index]
+        btn.highlighted = True
+        btn.focus_set()
+        self._home.scroll_into_view(btn)
+
     def move_selection(self, increment_value: int):
         buttons = self._home.connection_buttons
         if not buttons:
             return
 
         # Deselect old selection
-        previous_selection = self._selected_index
+        previous_selection = self.currently_selected_button_index
         self.clear_selection()
 
         # Compute new index
         if previous_selection is None:
-            self._selected_index = 0
+            target_index = 0
         else:
-            self._selected_index = (previous_selection + increment_value) % len(buttons)
+            target_index = (previous_selection + increment_value) % len(buttons)
 
-        btn = buttons[self._selected_index]
-        btn.highlighted = True
-        btn.focus_set()
-
-        self._home.scroll_into_view(btn)
+        self.select_button(target_index)
 
     def clear_selection(self):
-        if self._selected_index is not None:
-            self._home.connection_buttons[self._selected_index].highlighted = False
-            self._selected_index = None
+        selected_button = self.currently_selected_button
+        if selected_button:
+            selected_button.highlighted = False
 
     def on_connection_button_click(self, button):
-        if self._selected_index is None:
+        if self.currently_selected_button is None:
             return
 
         if button.highlighted:
             return
 
         self.clear_selection()
+
+    # ---------------------------
+    # State synchronisation
+    # ---------------------------
+    def on_connection_button_removed(self, button):
+        buttons = self._home.connection_buttons
+
+        # Deselect old selection
+        previous_selection = self.currently_selected_button_index
+        self.clear_selection()
+
+        if previous_selection is not None and len(buttons) > 1:
+            if button is buttons[previous_selection]:
+                if previous_selection == 0:
+                    self.select_button(1)
+
+                # Select one button up if a button in the middle is deleted.
+                else:
+                    self.select_button(previous_selection - 1)

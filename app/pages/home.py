@@ -128,20 +128,22 @@ class HomePage(ctk.CTkFrame):
             self.devices_scroll_frame,
             self._app,
             ip_address,
-            self.remove_connection_button,
+            self._on_remove_connection_button,
             ping_log=ping_log
         )
         btn.pack(pady=5, fill="x", expand=True)
         btn.pack_propagate(False)
 
         # Controller handles click behavior
-        btn.bind("<Button-1>", lambda e, b=btn: self.ux_controller.on_button_click(b))
+        btn.bind("<Button-1>", lambda e, b=btn: self.ux_controller.on_connection_button_click(b))
 
         self.connection_buttons.append(btn)
         self.update_no_device_label()
 
-    def remove_connection_button(self, button):
+    def _on_remove_connection_button(self, button):
         if button in self.connection_buttons:
+            self.ux_controller.on_connection_button_removed(button)
+
             self.connection_buttons.remove(button)
             self.update_no_device_label()
 
