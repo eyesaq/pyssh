@@ -66,20 +66,20 @@ class ConnectionListController:
     # ---------------------------
     # Selection logic
     # ---------------------------
-    def move_selection(self, direction):
+    def move_selection(self, increment_value: int):
         buttons = self._home.connection_buttons
         if not buttons:
             return
 
         # Deselect old selection
-        if self._selected_index is not None:
-            buttons[self._selected_index].highlighted = False
+        previous_selection = self._selected_index
+        self.clear_selection()
 
         # Compute new index
-        if self._selected_index is None:
+        if previous_selection is None:
             self._selected_index = 0
         else:
-            self._selected_index = (self._selected_index + direction) % len(buttons)
+            self._selected_index = (previous_selection + increment_value) % len(buttons)
 
         btn = buttons[self._selected_index]
         btn.highlighted = True
@@ -92,7 +92,7 @@ class ConnectionListController:
             self._home.connection_buttons[self._selected_index].highlighted = False
             self._selected_index = None
 
-    def on_button_click(self, button):
+    def on_connection_button_click(self, button):
         if self._selected_index is None:
             return
 
