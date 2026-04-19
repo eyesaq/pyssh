@@ -6,8 +6,6 @@ class ConnectionListController:
         self._app = app
         self._home = home_page
 
-        self._selected_index = None
-
         self._bind_keyboard()
         self._bind_mouse()
 
@@ -16,18 +14,17 @@ class ConnectionListController:
     # ---------------------------
     def _bind_keyboard(self):
         # --- Change selection ---
-        self._app.bind("<Up>", lambda e: self.move_selection(-1))
-        self._app.bind("<Down>", lambda e: self.move_selection(1))
+        self._app.bind("<Up>", self.handle_up_key)
+        self._app.bind("<Down>", self.handle_down_key)
 
         # --- Add Device shortcut ---
         self._app.bind("<a>", lambda e: self._home.on_add_device())
         self._app.bind("<A>", lambda e: self._home.on_add_device())
 
     def _invoke(self, action):
-        if self._selected_index is None:
+        btn = self.currently_selected_button
+        if btn is None:
             return
-
-        btn = self._home.connection_buttons[self._selected_index]
 
         if action == "edit":
             btn.edit_connection_button.invoke()
@@ -66,37 +63,73 @@ class ConnectionListController:
     # ---------------------------
     # Selection logic
     # ---------------------------
-    def move_selection(self, direction):
+    @property
+    def currently_selected_button_index(self):
+        for index, button in enumerate(self._home.connection_buttons):
+            if button.highlighted:
+                return index
+        return None
+
+    @property
+    def currently_selected_button(self):
+        for button in self._home.connection_buttons:
+            if button.highlighted:
+                return button
+        return None
+
+    def select_button(self, index):
+        self.clear_selection()
+
+        btn = self._home.connection_buttons[index]
+        btn.highlighted = True
+        btn.focus_set()
+        self._home.scroll_into_view(btn)
+
+    def handle_up_key(self, event):
+        self.move_selection(-1, up_key=True)
+
+    def handle_down_key(self, event):
+        self.move_selection(1, up_key=False)
+
+    def move_selection(self, increment_value: int, up_key=True):
         buttons = self._home.connection_buttons
         if not buttons:
             return
 
-        # Deselect old selection
-        if self._selected_index is not None:
-            buttons[self._selected_index].highlighted = False
+        selection_index = self.currently_selected_button_index
 
         # Compute new index
-        if self._selected_index is None:
-            self._selected_index = 0
+        if selection_index is None:
+            target_index = -1 if up_key else 0
         else:
-            self._selected_index = (self._selected_index + direction) % len(buttons)
+            target_index = (selection_index + increment_value) % len(buttons)
 
-        btn = buttons[self._selected_index]
-        btn.highlighted = True
-        btn.focus_set()
-
-        self._home.scroll_into_view(btn)
+        self.select_button(target_index)
 
     def clear_selection(self):
-        if self._selected_index is not None:
-            self._home.connection_buttons[self._selected_index].highlighted = False
-            self._selected_index = None
+        selected_button = self.currently_selected_button
+        if selected_button:
+            selected_button.highlighted = False
 
-    def on_button_click(self, button):
-        if self._selected_index is None:
+    def on_connection_button_click(self, button):
+        if self.currently_selected_button is None:
             return
 
         if button.highlighted:
             return
 
         self.clear_selection()
+
+    # ---------------------------
+    # State synchronisation
+    # ---------------------------
+    def on_connection_button_removed(self, button):
+        buttons = self._home.connection_buttons
+        selection_index = self.currently_selected_button_index
+
+        if selection_index is not None and len(buttons) > 1:
+            if button is buttons[selection_index]:
+                if selection_index == 0:
+                    self.select_button(1)
+                else:
+                    self.select_button(selection_index - 1)
