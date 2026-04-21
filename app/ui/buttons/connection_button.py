@@ -66,18 +66,14 @@ class ConnectionButton(ctk.CTkFrame):
         )
         self._device_name_label.place(x=5, y=2, relx=0.0, rely=0.0, anchor='nw')
 
-        # Online/offline status label
-        #w, h = self._app.icons.online_indicator.cget('size')
-
+        # Connection details
         top_right_status_frame = ctk.CTkFrame(self, fg_color="transparent", bg_color="transparent")
         top_right_status_frame.place(relx=1, rely=0.0, anchor="ne", x=-1.5, y=2)
 
         self._ip_address_label = ctk.CTkLabel(top_right_status_frame, text=ip_address)
-        #self._ip_address_label.place(relx=0.0, rely=0.0, anchor="ne")
         self._ip_address_label.pack(side="left", padx=(0, 5))
 
         self.status_label = ctk.CTkLabel(top_right_status_frame, text="○", fg_color="transparent")
-        #self.status_label.place(x=-10, y=2, relx=1, rely=0, anchor='ne')
         self.status_label.pack(side="left", padx=(0, 5))
 
         # Kick-start the update loop
