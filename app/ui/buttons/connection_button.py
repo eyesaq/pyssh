@@ -39,7 +39,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         self.delete_connection_button = ctk.CTkButton(
             toolbox_frame, image=delete_icon, text='', fg_color="transparent",
-            hover_color="gray13", command=self.delete_device, width=w, height=h
+            hover_color="gray13", command=self.delete_connection, width=w, height=h
         )
         self.delete_connection_button.place(anchor='center', relx=0.2, rely=0.5)
         CTkToolTip(self.delete_connection_button, "Delete")
@@ -97,10 +97,10 @@ class ConnectionButton(ctk.CTkFrame):
 
     def _status_update_loop(self):
         if self._run_status_loop:
-            threading.Thread(target=self._ping_and_update, daemon=True).start()
+            threading.Thread(target=self.ping_and_update, daemon=True).start()
             self.after(PING_INTERVAL, self._status_update_loop)
 
-    def _ping_and_update(self):
+    def ping_and_update(self):
         self._device_name_label.configure(text=self.device_info[1])
 
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
@@ -142,9 +142,14 @@ class ConnectionButton(ctk.CTkFrame):
     def offline_appearance(self):
         self.status_label.configure(text="●", text_color="red")
 
-    def delete_device(self):
+    def delete_connection(self, force_delete: bool = False):
         device_name = self.device_info[1]
-        if messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?"):
+        if force_delete:
+            confirmation = True
+        else:
+            confirmation = messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?")
+
+        if confirmation:
             self._app.database.delete_connection_by_ip(self.ip_address)
             self.run_status_loop = False
             self.remove_connection_button(self)
@@ -153,7 +158,7 @@ class ConnectionButton(ctk.CTkFrame):
     def update_button_data(self, new_ip: Optional[str] = None):
         if new_ip:
             self.ip_address = new_ip
-        self._ping_and_update()
+        self.ping_and_update()
 
     def edit_device(self):
         EditDeviceDialog(self, self._app, self.update_button_data)
