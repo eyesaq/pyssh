@@ -104,7 +104,7 @@ class ConnectionButton(ctk.CTkFrame):
             self.after(PING_INTERVAL, self.status_update_loop)
 
     def _ping_and_update(self):
-        self._device_name_label.configure(text=self._app.database.get_connection_info_by_ip(self.ip_address)[1])
+        self._device_name_label.configure(text=self.device_info[1])
 
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
