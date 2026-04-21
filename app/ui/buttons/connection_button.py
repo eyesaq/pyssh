@@ -142,7 +142,7 @@ class ConnectionButton(ctk.CTkFrame):
         self.status_label.configure(text="●", text_color="red")
 
     def delete_device(self):
-        device_name = self._app.database.get_connection_info_by_ip(self.ip_address)[1]
+        device_name = self.device_info[1]
         if messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?"):
             self._app.database.delete_connection_by_ip(self.ip_address)
             self.run_status_loop = False
