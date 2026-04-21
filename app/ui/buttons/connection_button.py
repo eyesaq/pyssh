@@ -1,6 +1,5 @@
 # Standard imports
 import customtkinter as ctk
-import tkinter as tk
 from tkinter import messagebox
 import os
 import threading
@@ -109,7 +108,8 @@ class ConnectionButton(ctk.CTkFrame):
         if self.ping_log:
             print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
 
-        self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
+        if self.winfo_exists():
+            self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
 
     @property
     def device_info(self):
