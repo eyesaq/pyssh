@@ -38,7 +38,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         self.delete_connection_button = ctk.CTkButton(
             toolbox_frame, image=delete_icon, text='', fg_color="transparent",
-            hover_color="gray13", command=self.delete_device, width=w, height=h
+            hover_color="gray13", command=self.delete_connection, width=w, height=h
         )
         self.delete_connection_button.place(anchor='center', relx=0.2, rely=0.5)
         CTkToolTip(self.delete_connection_button, "Delete")
@@ -66,23 +66,19 @@ class ConnectionButton(ctk.CTkFrame):
         )
         self._device_name_label.place(x=5, y=2, relx=0.0, rely=0.0, anchor='nw')
 
-        # Online/offline status label
-        #w, h = self._app.icons.online_indicator.cget('size')
-
+        # Connection details
         top_right_status_frame = ctk.CTkFrame(self, fg_color="transparent", bg_color="transparent")
         top_right_status_frame.place(relx=1, rely=0.0, anchor="ne", x=-1.5, y=2)
 
         self._ip_address_label = ctk.CTkLabel(top_right_status_frame, text=ip_address)
-        #self._ip_address_label.place(relx=0.0, rely=0.0, anchor="ne")
         self._ip_address_label.pack(side="left", padx=(0, 5))
 
         self.status_label = ctk.CTkLabel(top_right_status_frame, text="○", fg_color="transparent")
-        #self.status_label.place(x=-10, y=2, relx=1, rely=0, anchor='ne')
         self.status_label.pack(side="left", padx=(0, 5))
 
         # Kick-start the update loop
         self._run_status_loop = True
-        self.after(0, self.status_update_loop)
+        self.after_idle(self._status_update_loop)
 
     @property
     def run_status_loop(self):
@@ -96,15 +92,15 @@ class ConnectionButton(ctk.CTkFrame):
 
         # If the update loop wasn't running before - start it now
         if running and not was_running:
-            self.after(0, self.status_update_loop)
+            self.after_idle(self._status_update_loop)
 
-    def status_update_loop(self):
+    def _status_update_loop(self):
         if self._run_status_loop:
-            threading.Thread(target=self._ping_and_update, daemon=True).start()
-            self.after(PING_INTERVAL, self.status_update_loop)
+            threading.Thread(target=self.ping_and_update, daemon=True).start()
+            self.after(PING_INTERVAL, self._status_update_loop)
 
-    def _ping_and_update(self):
-        self._device_name_label.configure(text=self._app.database.get_connection_info_by_ip(self.ip_address)[1])
+    def ping_and_update(self):
+        self._device_name_label.configure(text=self.device_info[1])
 
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
@@ -112,7 +108,8 @@ class ConnectionButton(ctk.CTkFrame):
         if self.ping_log:
             print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
 
-        self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
+        if self.winfo_exists():
+            self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
 
     @property
     def device_info(self):
@@ -145,9 +142,14 @@ class ConnectionButton(ctk.CTkFrame):
     def offline_appearance(self):
         self.status_label.configure(text="●", text_color="red")
 
-    def delete_device(self):
-        device_name = self._app.database.get_connection_info_by_ip(self.ip_address)[1]
-        if messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?"):
+    def delete_connection(self, force_delete: bool = False):
+        device_name = self.device_info[1]
+        if force_delete:
+            confirmation = True
+        else:
+            confirmation = messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?")
+
+        if confirmation:
             self._app.database.delete_connection_by_ip(self.ip_address)
             self.run_status_loop = False
             self.remove_connection_button(self)
@@ -156,7 +158,7 @@ class ConnectionButton(ctk.CTkFrame):
     def update_button_data(self, new_ip: Optional[str] = None):
         if new_ip:
             self.ip_address = new_ip
-        self._ping_and_update()
+        self.ping_and_update()
 
     def edit_device(self):
         EditDeviceDialog(self, self._app, self.update_button_data)
