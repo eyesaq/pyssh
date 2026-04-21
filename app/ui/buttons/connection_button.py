@@ -96,10 +96,11 @@ class ConnectionButton(ctk.CTkFrame):
 
     def _status_update_loop(self):
         if self._run_status_loop:
-            threading.Thread(target=self.ping_and_update, daemon=True).start()
+            threading.Thread(target=self.refresh, daemon=True).start()
             self.after(PING_INTERVAL, self._status_update_loop)
 
-    def ping_and_update(self):
+    def refresh(self):
+        self._ip_address_label.configure(text=self.device_info[0])
         self._device_name_label.configure(text=self.device_info[1])
 
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
@@ -158,7 +159,7 @@ class ConnectionButton(ctk.CTkFrame):
     def update_button_data(self, new_ip: Optional[str] = None):
         if new_ip:
             self.ip_address = new_ip
-        self.ping_and_update()
+        self.refresh()
 
     def edit_device(self):
         EditDeviceDialog(self, self._app, self.update_button_data)
