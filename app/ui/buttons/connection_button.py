@@ -96,7 +96,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         # If the update loop wasn't running before - start it now
         if running and not was_running:
-            self.after(0, self.status_update_loop)
+            self.after_idle(self.status_update_loop)
 
     def status_update_loop(self):
         if self._run_status_loop:
