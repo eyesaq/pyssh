@@ -1,5 +1,6 @@
 # Standard imports
 import customtkinter as ctk
+import tkinter as tk
 from tkinter import messagebox
 import os
 import threading
@@ -78,7 +79,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         # Kick-start the update loop
         self._run_status_loop = True
-        self.after(0, self.status_update_loop)
+        self.after(0, self._status_update_loop)
 
     @property
     def run_status_loop(self):
@@ -92,12 +93,12 @@ class ConnectionButton(ctk.CTkFrame):
 
         # If the update loop wasn't running before - start it now
         if running and not was_running:
-            self.after_idle(self.status_update_loop)
+            self.after_idle(self._status_update_loop)
 
-    def status_update_loop(self):
+    def _status_update_loop(self):
         if self._run_status_loop:
             threading.Thread(target=self._ping_and_update, daemon=True).start()
-            self.after(PING_INTERVAL, self.status_update_loop)
+            self.after(PING_INTERVAL, self._status_update_loop)
 
     def _ping_and_update(self):
         self._device_name_label.configure(text=self.device_info[1])
