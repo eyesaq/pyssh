@@ -79,7 +79,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         # Kick-start the update loop
         self._run_status_loop = True
-        self.after(0, self._status_update_loop)
+        self.after_idle(self._status_update_loop)
 
     @property
     def run_status_loop(self):
