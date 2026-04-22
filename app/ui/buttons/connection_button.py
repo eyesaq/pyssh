@@ -22,6 +22,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         self._highlighted = False
         self.bind_ids = {}
+        self._last_ping_result = None
 
         ip_address, device_name, username, password = self.device_info
 
@@ -81,6 +82,10 @@ class ConnectionButton(ctk.CTkFrame):
         self.after_idle(self._init_update_loop)
 
     @property
+    def last_ping_result(self):
+        return self._last_ping_result
+
+    @property
     def run_status_loop(self):
         return self._run_status_loop
 
@@ -108,7 +113,8 @@ class ConnectionButton(ctk.CTkFrame):
         self._device_name_label.configure(text=self.device_info[1])
 
         # -- Online Status --
-        response = os.system(f"ping -n 1 {self.ip_address} >nul")
+        self.ping()
+        response = self.last_ping_result
         reachable = response == 0
 
         if self.ping_log:
@@ -116,6 +122,11 @@ class ConnectionButton(ctk.CTkFrame):
 
         if self.winfo_exists():
             self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
+
+    def ping(self):
+        def ping_thread():
+            self._last_ping_result = os.system(f"ping -n 1 {self.ip_address} >nul")
+        threading.Thread(target=ping_thread, daemon=True).start()
 
     @property
     def device_info(self):
