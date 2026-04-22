@@ -16,8 +16,8 @@ class ConnectionButton(ctk.CTkFrame):
     def __init__(self, parent, app, ip_address, on_remove_connection_button_function, ping_log=False):
         super().__init__(parent, width=340, height=50, bg_color="transparent", fg_color="gray21")
         self._app = app
-        self.ip_address = ip_address
-        self.remove_connection_button = on_remove_connection_button_function
+        self._ip_address = ip_address
+        self._remove_connection_button = on_remove_connection_button_function
         self.ping_log = ping_log
 
         self._highlighted = False
@@ -81,6 +81,10 @@ class ConnectionButton(ctk.CTkFrame):
         self.after_idle(self._init_update_loop)
 
     @property
+    def ip_address(self):
+        return self._ip_address
+
+    @property
     def run_status_loop(self):
         """Returns whether the online status update loop is running or not"""
         return self._run_status_loop
@@ -100,10 +104,10 @@ class ConnectionButton(ctk.CTkFrame):
             threading.Thread(target=lambda: self._update_status(reschedule=True), daemon=True).start()
 
     def _update_status(self, reschedule: bool = False):
-        response = os.system(f"ping -n 1 {self.ip_address} >nul")
+        response = os.system(f"ping -n 1 {self._ip_address} >nul")
         reachable = response == 0
         if self.ping_log:
-            print(f'Pinged {self.ip_address}: response \'{response}\'')
+            print(f'Pinged {self._ip_address}: response \'{response}\'')
         self.after_idle(lambda: self._apply_ping_result(reachable, reschedule))
 
     def _apply_ping_result(self, reachable: bool, reschedule: bool):
@@ -131,7 +135,7 @@ class ConnectionButton(ctk.CTkFrame):
     @property
     def connection_info(self):
         """Retrieve connection information using the IP address (DB call involved)"""
-        return self._app.database.get_connection_info_by_ip(self.ip_address)
+        return self._app.database.get_connection_info_by_ip(self._ip_address)
 
     @property
     def highlighted(self):
@@ -181,17 +185,17 @@ class ConnectionButton(ctk.CTkFrame):
             confirmation = messagebox.askyesno("Confirm Delete", f"Delete '{device_name}'?")
 
         if confirmation:
-            self._app.database.delete_connection_by_ip(self.ip_address)
+            self._app.database.delete_connection_by_ip(self._ip_address)
             self.run_status_loop = False
-            self.remove_connection_button(self)
+            self._remove_connection_button(self)
             self.destroy()
 
     def _on_ip_update(self, new_ip: Optional[str] = None):
         if new_ip:
-            self.ip_address = new_ip
+            self._ip_address = new_ip
 
         # Always refresh incase anything else changed in the DB.
         self.refresh()
 
     def _edit_device(self):
-        EditDeviceDialog(self, self._app, self._on_ip_update)
+        EditDeviceDialog(self, self._app, self._on_ip_update, self.ip_address)

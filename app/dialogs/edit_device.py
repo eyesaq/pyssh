@@ -5,12 +5,13 @@ from typing import Callable
 from app.dialogs.base_device_input import BaseDeviceInput
 
 class EditDeviceDialog(BaseDeviceInput):
-    def __init__(self, parent, app, update_data: Callable):
+    def __init__(self, parent, app, update_data: Callable, ip_address: str):
         self._parent = parent
         self._app = app
         self._update_button_data = update_data
+        self._ip_address = ip_address
 
-        self.old_state = self._app.database.get_connection_info_by_ip(self._parent.ip_address)
+        self.old_state = self._app.database.get_connection_info_by_ip(self._ip_address)
 
         defaults = {
             "ip_address": self.old_state[0],
