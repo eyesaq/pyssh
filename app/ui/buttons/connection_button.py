@@ -84,6 +84,11 @@ class ConnectionButton(ctk.CTkFrame):
     def ip_address(self):
         return self._ip_address
 
+    @ip_address.setter
+    def ip_address(self, new_ip):
+        self._ip_address = new_ip
+        self.refresh()
+
     @property
     def run_status_loop(self):
         """Returns whether the online status update loop is running or not"""
@@ -190,12 +195,11 @@ class ConnectionButton(ctk.CTkFrame):
             self._remove_connection_button(self)
             self.destroy()
 
-    def _on_ip_update(self, new_ip: Optional[str] = None):
-        if new_ip:
-            self._ip_address = new_ip
+    def _get_ip_address(self):
+        return self.ip_address
 
-        # Always refresh incase anything else changed in the DB.
-        self.refresh()
+    def _set_ip_address(self, new_ip):
+        self._ip_address = new_ip
 
     def _edit_device(self):
-        EditDeviceDialog(self, self._app, self._on_ip_update, self.ip_address)
+        EditDeviceDialog(self, self._app, self.refresh, self._get_ip_address, self._set_ip_address)
