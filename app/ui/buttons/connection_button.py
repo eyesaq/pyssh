@@ -96,16 +96,16 @@ class ConnectionButton(ctk.CTkFrame):
 
     def _init_update_loop(self):
         if self._run_status_loop:
-            threading.Thread(target=lambda: self._run_ping_cycle(reschedule=True), daemon=True).start()
+            threading.Thread(target=lambda: self._update_status(reschedule=True), daemon=True).start()
 
-    def _run_ping_cycle(self, reschedule: bool = False):
+    def _update_status(self, reschedule: bool = False):
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
         if self.ping_log:
             print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
-        self.after_idle(lambda: self._apply_ping_result_cycle(reachable, reschedule))
+        self.after_idle(lambda: self._apply_ping_result(reachable, reschedule))
 
-    def _apply_ping_result_cycle(self, reachable: bool, reschedule: bool):
+    def _apply_ping_result(self, reachable: bool, reschedule: bool):
         if not self.winfo_exists():
             return
 
@@ -119,7 +119,7 @@ class ConnectionButton(ctk.CTkFrame):
         if not self.winfo_exists():
             return
         self._refresh_labels()
-        threading.Thread(target=self._run_ping_cycle, daemon=True).start()
+        threading.Thread(target=self._update_status, daemon=True).start()
 
     def _refresh_labels(self):
         self._ip_address_label.configure(text=self.device_info[0])
