@@ -78,7 +78,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         # Kick-start the update loop
         self._run_status_loop = True
-        self.after_idle(self._status_update_loop)
+        self.after_idle(self._init_update_loop)
 
     @property
     def run_status_loop(self):
@@ -92,17 +92,22 @@ class ConnectionButton(ctk.CTkFrame):
 
         # If the update loop wasn't running before - start it now
         if running and not was_running:
-            self.after_idle(self._status_update_loop)
+            self.after_idle(self._init_update_loop)
 
-    def _status_update_loop(self):
+    def _init_update_loop(self):
         if self._run_status_loop:
-            threading.Thread(target=self.refresh, daemon=True).start()
-            self.after(PING_INTERVAL, self._status_update_loop)
+            self.refresh()
+            self.after(PING_INTERVAL, self._init_update_loop)
 
     def refresh(self):
+        threading.Thread(target=self._refresh_thread, daemon=True).start()
+
+    def _refresh_thread(self):
+        # -- Appearance --
         self._ip_address_label.configure(text=self.device_info[0])
         self._device_name_label.configure(text=self.device_info[1])
 
+        # -- Online Status --
         response = os.system(f"ping -n 1 {self.ip_address} >nul")
         reachable = response == 0
 
@@ -156,10 +161,10 @@ class ConnectionButton(ctk.CTkFrame):
             self.remove_connection_button(self)
             self.destroy()
 
-    def update_button_data(self, new_ip: Optional[str] = None):
+    def apply_new_ip(self, new_ip: Optional[str] = None):
         if new_ip:
             self.ip_address = new_ip
         self.refresh()
 
     def edit_device(self):
-        EditDeviceDialog(self, self._app, self.update_button_data)
+        EditDeviceDialog(self, self._app, self.apply_new_ip)
