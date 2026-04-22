@@ -22,7 +22,6 @@ class ConnectionButton(ctk.CTkFrame):
 
         self._highlighted = False
         self.bind_ids = {}
-        self._last_ping_result = None
 
         ip_address, device_name, username, password = self.device_info
 
@@ -82,10 +81,6 @@ class ConnectionButton(ctk.CTkFrame):
         self.after_idle(self._init_update_loop)
 
     @property
-    def last_ping_result(self):
-        return self._last_ping_result
-
-    @property
     def run_status_loop(self):
         return self._run_status_loop
 
@@ -101,32 +96,34 @@ class ConnectionButton(ctk.CTkFrame):
 
     def _init_update_loop(self):
         if self._run_status_loop:
-            self.refresh()
+            threading.Thread(target=lambda: self._run_ping_cycle(reschedule=True), daemon=True).start()
+
+    def _run_ping_cycle(self, reschedule: bool = False):
+        response = os.system(f"ping -n 1 {self.ip_address} >nul")
+        reachable = response == 0
+        if self.ping_log:
+            print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
+        self.after_idle(lambda: self._apply_ping_result_cycle(reachable, reschedule))
+
+    def _apply_ping_result_cycle(self, reachable: bool, reschedule: bool):
+        if not self.winfo_exists():
+            return
+
+        self._refresh_labels()
+        self.online_appearance() if reachable else self.offline_appearance()
+
+        if self._run_status_loop and reschedule:
             self.after(PING_INTERVAL, self._init_update_loop)
 
     def refresh(self):
-        threading.Thread(target=self._refresh_thread, daemon=True).start()
+        if not self.winfo_exists():
+            return
+        self._refresh_labels()
+        threading.Thread(target=self._run_ping_cycle, daemon=True).start()
 
-    def _refresh_thread(self):
-        # -- Appearance --
+    def _refresh_labels(self):
         self._ip_address_label.configure(text=self.device_info[0])
         self._device_name_label.configure(text=self.device_info[1])
-
-        # -- Online Status --
-        self.ping()
-        response = self.last_ping_result
-        reachable = response == 0
-
-        if self.ping_log:
-            print(f'Pinged \'{self.device_info[1]}\'@{self.ip_address}: response \'{response}\'')
-
-        if self.winfo_exists():
-            self.after_idle(lambda: self.online_appearance() if reachable else self.offline_appearance())
-
-    def ping(self):
-        def ping_thread():
-            self._last_ping_result = os.system(f"ping -n 1 {self.ip_address} >nul")
-        threading.Thread(target=ping_thread, daemon=True).start()
 
     @property
     def device_info(self):
