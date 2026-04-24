@@ -53,7 +53,7 @@ class ConnectionButton(ctk.CTkFrame):
 
         self.edit_connection_button = ctk.CTkButton(
             toolbox_frame, image=edit_icon, text='', fg_color="transparent",
-            hover_color="gray13", command=self._edit_device, width=w, height=h
+            hover_color="gray13", command=self._edit_connection, width=w, height=h
         )
         self.edit_connection_button.grid(row=0, column=1, padx=5)
         CTkToolTip(self.edit_connection_button, "Edit")
@@ -198,7 +198,7 @@ class ConnectionButton(ctk.CTkFrame):
             self.configure(border_width=1, border_color="#8EBBFF")
 
             self._bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection_button.invoke())
-            self._bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection_button.invoke())
+            self._bind_ids["<Delete>"] = self._app.bind("<Delete>", self._on_delete_connection_shortcut)
             self._bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu_button.invoke())
             self._bind_ids["<s>"] = self._app.bind("<s>", lambda e: self.refresh_button.invoke())
         else:
@@ -244,5 +244,13 @@ class ConnectionButton(ctk.CTkFrame):
     def _set_ip_address(self, new_ip):
         self._ip_address = new_ip
 
-    def _edit_device(self):
+    def _on_delete_connection_shortcut(self, event):
+        ctrl = bool(event.state & 0x4)
+
+        if ctrl:
+            self.delete_connection(force_delete=True)
+        else:
+            self.delete_connection()
+
+    def _edit_connection(self):
         EditDeviceDialog(self, self._app, self.refresh, self._get_ip_address, self._set_ip_address)
