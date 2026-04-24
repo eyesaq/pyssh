@@ -125,10 +125,14 @@ class ConnectionButton(ctk.CTkFrame):
         if self._run_status_loop and reschedule:
             self.after(PING_INTERVAL, self._init_update_loop)
 
-    def refresh(self):
+    def refresh(self, silent: bool = True):
         """Update connection info displays and the online status"""
         if not self.winfo_exists():
             return
+
+        if not silent:
+            self._neutral_appearance()
+
         self._refresh_labels()
         threading.Thread(target=self._update_status, daemon=True).start()
 
