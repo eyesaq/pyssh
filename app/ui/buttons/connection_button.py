@@ -176,6 +176,9 @@ class ConnectionButton(ctk.CTkFrame):
     def _offline_appearance(self):
         self.status_label.configure(text="●", text_color="red")
 
+    def _neutral_appearance(self):
+        self.status_label.configure(text="○", fg_color="transparent")
+
     def delete_connection(self, force_delete: bool = False):
         """
         Delete a connection button and its corresponding DB record.
