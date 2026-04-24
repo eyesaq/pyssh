@@ -124,7 +124,7 @@ class ConnectionButton(ctk.CTkFrame):
         self._online_appearance() if reachable else self._offline_appearance()
 
         if self._run_status_loop and reschedule:
-            interval = max(1000, int(random.gauss(MEAN_PING_INTERVAL, PING_STANDARD_DEVIATION)))
+            interval = max(MEAN_PING_INTERVAL, int(random.gauss(MEAN_PING_INTERVAL, PING_STANDARD_DEVIATION)))
             self.after(interval, self._init_update_loop)
 
     def refresh(self, silent: bool = True):
