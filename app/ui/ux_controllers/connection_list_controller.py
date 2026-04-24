@@ -21,6 +21,10 @@ class ConnectionListController:
         self._app.bind("<a>", lambda e: self._home.on_add_device())
         self._app.bind("<A>", lambda e: self._home.on_add_device())
 
+        # --- Refresh Connections ---
+        self._app.bind("<r>", lambda e: 1)
+        self._app.bind("<R>", lambda e: 1)
+
     def _invoke(self, action):
         btn = self.currently_selected_button
         if btn is None:
