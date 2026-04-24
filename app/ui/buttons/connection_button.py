@@ -73,8 +73,9 @@ class ConnectionButton(ctk.CTkFrame):
         self._ip_address_label = ctk.CTkLabel(top_right_status_frame, text=ip_address)
         self._ip_address_label.pack(side="left", padx=(0, 5))
 
-        self._status_label = ctk.CTkLabel(top_right_status_frame, text="○", fg_color="transparent")
+        self._status_label = ctk.CTkLabel(top_right_status_frame)
         self._status_label.pack(side="left", padx=(0, 5))
+        self._neutral_appearance()
 
         # Kick-start the update loop
         self._run_status_loop = True
@@ -186,7 +187,7 @@ class ConnectionButton(ctk.CTkFrame):
         self._status_label.configure(text="●", text_color="red")
 
     def _neutral_appearance(self):
-        self._status_label.configure(text="○", fg_color="transparent")
+        self._status_label.configure(text="○", text_color="white", fg_color="transparent")
 
     def delete_connection(self, force_delete: bool = False):
         """
