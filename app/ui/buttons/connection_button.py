@@ -51,13 +51,24 @@ class ConnectionButton(ctk.CTkFrame):
             toolbox_frame, image=edit_icon, text= '', fg_color="transparent",
             hover_color="gray13", command=self._edit_device, width=w, height=h
         )
-        self.edit_connection_button.place(anchor='center', relx=0.5, rely=0.5)
+        self.edit_connection_button.place(anchor='center', relx=0.4, rely=0.5)
         CTkToolTip(self.edit_connection_button, "Edit")
 
-        # SSH Commands menu
+        # SSH Commands menu button
         self.menu_button = SSHActionMenu(toolbox_frame, self._app, self.connection_info)
-        self.menu_button.place(relx=0.8, rely=0.5, anchor='center')
-        CTkToolTip(self.menu_button, "SSH options")
+        self.menu_button.place(relx=0.6, rely=0.5, anchor='center')
+        CTkToolTip(self.menu_button, "SSH Options")
+
+        # Refresh button
+        refresh_icon = self._app.icons.refresh_button
+        w, h = edit_icon.cget('size')
+
+        self.refresh_button = ctk.CTkButton(
+            toolbox_frame, image=refresh_icon, text= '', fg_color="transparent",
+            hover_color="gray13", command=lambda: self.refresh(silent=False), width=w, height=h
+        )
+        self.refresh_button.place(relx=0.8, rely=0.5, anchor='center')
+        CTkToolTip(self.refresh_button, "Refresh")
 
         # Device name title
         self._device_name_label = ctk.CTkLabel(
