@@ -126,7 +126,12 @@ class ConnectionButton(ctk.CTkFrame):
             self.after(PING_INTERVAL, self._init_update_loop)
 
     def refresh(self, silent: bool = True):
-        """Update connection info displays and the online status"""
+        """
+        Update connection info displays and the online status
+
+        Args:
+            silent: Quietly refresh the status icon without resetting to neutral.
+        """
         if not self.winfo_exists():
             return
 
