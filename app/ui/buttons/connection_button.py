@@ -3,12 +3,12 @@ import customtkinter as ctk
 from tkinter import messagebox
 import os
 import threading
-from typing import Optional
+import random
 
 # Local application imports
 from app.ui.menus.SSH_action_menu import SSHActionMenu
 from app.dialogs.edit_device import EditDeviceDialog
-from app.config import PING_INTERVAL
+from app.config import MEAN_PING_INTERVAL, PING_STANDARD_DEVIATION
 from app.ui.tooltips import CTkToolTip
 
 
@@ -124,7 +124,8 @@ class ConnectionButton(ctk.CTkFrame):
         self._online_appearance() if reachable else self._offline_appearance()
 
         if self._run_status_loop and reschedule:
-            self.after(PING_INTERVAL, self._init_update_loop)
+            interval = int(random.gauss(MEAN_PING_INTERVAL, PING_STANDARD_DEVIATION))
+            self.after(interval, self._init_update_loop)
 
     def refresh(self, silent: bool = True):
         """
