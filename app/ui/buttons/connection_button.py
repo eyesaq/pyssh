@@ -21,7 +21,7 @@ class ConnectionButton(ctk.CTkFrame):
         self.ping_log = ping_log
 
         self._highlighted = False
-        self.bind_ids = {}
+        self._bind_ids = {}
 
         ip_address, device_name, username, password = self.connection_info
 
@@ -158,14 +158,14 @@ class ConnectionButton(ctk.CTkFrame):
         if highlight:
             self.configure(border_width=1, border_color="#8EBBFF")
 
-            self.bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection_button.invoke())
-            self.bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection_button.invoke())
-            self.bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu_button.invoke())
+            self._bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection_button.invoke())
+            self._bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection_button.invoke())
+            self._bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu_button.invoke())
         else:
-            if self.bind_ids:
-                for sequence, bind_id in self.bind_ids.items():
+            if self._bind_ids:
+                for sequence, bind_id in self._bind_ids.items():
                     self._app.unbind(sequence, bind_id)
-                self.bind_ids = {}
+                self._bind_ids = {}
             self.configure(border_width=0)
 
         self._highlighted = highlight
