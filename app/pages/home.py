@@ -154,6 +154,10 @@ class HomePage(ctk.CTkFrame):
         else:
             self.no_devices_label.place_forget()
 
+    def on_force_refresh(self):
+        for btn in self.connection_buttons:
+            btn.refresh()
+
     # ---------------------------------------------------------
     # Dialogs
     # ---------------------------------------------------------

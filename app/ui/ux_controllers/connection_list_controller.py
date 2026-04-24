@@ -22,8 +22,8 @@ class ConnectionListController:
         self._app.bind("<A>", lambda e: self._home.on_add_device())
 
         # --- Refresh Connections ---
-        self._app.bind("<r>", lambda e: 1)
-        self._app.bind("<R>", lambda e: 1)
+        self._app.bind("<r>", lambda e: self._home.on_force_refresh())
+        self._app.bind("<R>", lambda e: self._home.on_force_refresh())
 
     def _invoke(self, action):
         btn = self.currently_selected_button
