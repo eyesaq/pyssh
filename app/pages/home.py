@@ -155,8 +155,12 @@ class HomePage(ctk.CTkFrame):
             self.no_devices_label.place_forget()
 
     # ---------------------------------------------------------
-    # Dialogs
+    # Handlers
     # ---------------------------------------------------------
+
+    def on_force_refresh(self):
+        for btn in self.connection_buttons:
+            btn.refresh(silent=False)
 
     def on_add_device(self):
         AddDeviceDialog(self, self._app, self.create_connection_button)
