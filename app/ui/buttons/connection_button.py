@@ -189,6 +189,7 @@ class ConnectionButton(ctk.CTkFrame):
             self._bind_ids["<e>"] = self._app.bind("<e>", lambda e: self.edit_connection_button.invoke())
             self._bind_ids["<Delete>"] = self._app.bind("<Delete>", lambda e: self.delete_connection_button.invoke())
             self._bind_ids["<m>"] = self._app.bind("<m>", lambda e: self.menu_button.invoke())
+            self._bind_ids["<r>"] = self._app.bind("<r>", lambda e: self.refresh_button.invoke())
         else:
             if self._bind_ids:
                 for sequence, bind_id in self._bind_ids.items():
