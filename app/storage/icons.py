@@ -9,6 +9,7 @@ class Icons:
         self.delete_button = self._load('delete_button.png')
         self.edit_button = self._load('edit_button.png')
         self.menu_button = self._load('menu_button.png')
+        self.refresh_button = self._load('refresh_button.png')
 
         self.white_edit_button = self._load('white_edit_button.png')
         self.white_delete_button = self._load('white_delete_button.png')
