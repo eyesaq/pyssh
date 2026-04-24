@@ -32,6 +32,9 @@ class ConnectionButton(ctk.CTkFrame):
             relheight=0.4, x=5, y=-5
         )
 
+        toolbox_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        toolbox_frame.grid_rowconfigure(0, weight=1)
+
         # Delete device button
         delete_icon = self._app.icons.red_delete_button
         w, h = delete_icon.cget('size')
@@ -40,7 +43,7 @@ class ConnectionButton(ctk.CTkFrame):
             toolbox_frame, image=delete_icon, text='', fg_color="transparent",
             hover_color="gray13", command=self.delete_connection, width=w, height=h
         )
-        self.delete_connection_button.place(anchor='center', relx=0.2, rely=0.5)
+        self.delete_connection_button.grid(row=0, column=0, padx=5)
         CTkToolTip(self.delete_connection_button, "Delete")
 
         # Edit device button
@@ -48,26 +51,26 @@ class ConnectionButton(ctk.CTkFrame):
         w, h = edit_icon.cget('size')
 
         self.edit_connection_button = ctk.CTkButton(
-            toolbox_frame, image=edit_icon, text= '', fg_color="transparent",
+            toolbox_frame, image=edit_icon, text='', fg_color="transparent",
             hover_color="gray13", command=self._edit_device, width=w, height=h
         )
-        self.edit_connection_button.place(anchor='center', relx=0.4, rely=0.5)
+        self.edit_connection_button.grid(row=0, column=1, padx=5)
         CTkToolTip(self.edit_connection_button, "Edit")
 
         # SSH Commands menu button
         self.menu_button = SSHActionMenu(toolbox_frame, self._app, self.connection_info)
-        self.menu_button.place(relx=0.6, rely=0.5, anchor='center')
+        self.menu_button.grid(row=0, column=2, padx=5)
         CTkToolTip(self.menu_button, "SSH Options")
 
         # Refresh button
         refresh_icon = self._app.icons.refresh_button
-        w, h = edit_icon.cget('size')
+        w, h = refresh_icon.cget('size')
 
         self.refresh_button = ctk.CTkButton(
-            toolbox_frame, image=refresh_icon, text= '', fg_color="transparent",
+            toolbox_frame, image=refresh_icon, text='', fg_color="transparent",
             hover_color="gray13", command=lambda: self.refresh(silent=False), width=w, height=h
         )
-        self.refresh_button.place(relx=0.8, rely=0.5, anchor='center')
+        self.refresh_button.grid(row=0, column=3, padx=5)
         CTkToolTip(self.refresh_button, "Refresh")
 
         # Device name title
