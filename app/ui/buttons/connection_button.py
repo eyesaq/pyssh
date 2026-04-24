@@ -20,6 +20,7 @@ class ConnectionButton(ctk.CTkFrame):
         self._remove_connection_button = on_remove_connection_button_function
         self.ping_log = ping_log
 
+        self._pinging = False
         self._highlighted = False
         self._bind_ids = {}
 
@@ -105,6 +106,10 @@ class ConnectionButton(ctk.CTkFrame):
         self.refresh()
 
     @property
+    def pinging(self):
+        return self._pinging
+
+    @property
     def run_status_loop(self):
         """Returns whether the online status update loop is running or not"""
         return self._run_status_loop
@@ -129,6 +134,7 @@ class ConnectionButton(ctk.CTkFrame):
         if self.ping_log:
             print(f'Pinged {self._ip_address}: response \'{response}\'')
         self.after_idle(lambda: self._apply_ping_result(reachable, reschedule))
+        self._pinging = False
 
     def _apply_ping_result(self, reachable: bool, reschedule: bool):
         if not self.winfo_exists():
@@ -151,8 +157,13 @@ class ConnectionButton(ctk.CTkFrame):
         Args:
             silent: Quietly refresh the status icon without resetting to neutral.
         """
+        if self._pinging:
+            return
+
         if not self.winfo_exists():
             return
+
+        self._pinging = True
 
         if not silent:
             self._neutral_appearance()
