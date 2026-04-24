@@ -25,18 +25,6 @@ class ConnectionListController:
         self._app.bind("<r>", lambda e: self._home.on_force_refresh())
         self._app.bind("<R>", lambda e: self._home.on_force_refresh())
 
-    def _invoke(self, action):
-        btn = self.currently_selected_button
-        if btn is None:
-            return
-
-        if action == "edit":
-            btn.edit_connection_button.invoke()
-        elif action == "delete":
-            btn.delete_connection_button.invoke()
-        elif action == "menu":
-            btn.menu_button.invoke()
-
     # ---------------------------
     # Mouse bindings
     # ---------------------------
