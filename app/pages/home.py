@@ -156,7 +156,7 @@ class HomePage(ctk.CTkFrame):
 
     def on_force_refresh(self):
         for btn in self.connection_buttons:
-            btn.refresh()
+            btn.refresh(silent=False)
 
     # ---------------------------------------------------------
     # Dialogs
