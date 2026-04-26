@@ -5,6 +5,7 @@ import customtkinter as ctk
 from app.dialogs.add_device import AddDeviceDialog
 from app.ui.buttons.connection_button import ConnectionButton
 from app.config import PING_LOG
+from app.ui.tooltips import CTkToolTip
 from app.ui.ux_controllers.connection_list_controller import ConnectionListController
 from app.ui.frames.scrollable_frame import ScrollableFrame
 
@@ -45,6 +46,7 @@ class HomePage(ctk.CTkFrame):
             command=self.on_add_device
         )
         add_device_button.pack(side="left", padx=(0, 8))
+        CTkToolTip(add_device_button, 'Add Device')
 
         add_device_label = ctk.CTkLabel(
             left_banner_container,
