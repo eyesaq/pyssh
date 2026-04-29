@@ -38,7 +38,7 @@ def _resolve_log_level():
     elif mode == "debug":
         return logging.DEBUG
     else:
-        raise TypeError(f"LOG_MODE in config.py can only be 'off', 'on' or 'debug'. Received: '{mode}'")
+        raise ValueError(f"LOG_MODE must be 'off', 'on' or 'debug'. Got: '{mode}'")
 
 
 
