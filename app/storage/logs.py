@@ -5,7 +5,6 @@ from datetime import datetime
 class Logs:
     def __init__(self):
         self._logs_path = Path("data/logs")
-        self._logs_path.mkdir(parents=True, exist_ok=True)
         self._log_file = None
 
     def _generate_log_filename(self) -> Path:
