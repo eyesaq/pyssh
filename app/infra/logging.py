@@ -1,11 +1,9 @@
 import logging
 import logging.handlers
-from pathlib import Path
+from app.storage.logs import Logs
 from app.config import LOG_MODE
 
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
-LOG_FILE = LOG_DIR / "pyssh.log"
+logs_access = Logs()
 
 COLOURS = {
     "DEBUG": "\033[36m",
@@ -70,7 +68,7 @@ def get_logger(name: str) -> logging.Logger:
 
     # File handler (always DEBUG to capture full detail)
     file_handler = logging.handlers.RotatingFileHandler(
-        LOG_FILE, maxBytes=2_000_000, backupCount=5, encoding="utf-8"
+        logs_access.log_file, maxBytes=2_000_000, backupCount=5, encoding="utf-8"
     )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(
