@@ -1,5 +1,9 @@
 import sqlite3
 from pathlib import Path
+from app.infra.logging import get_logger
+
+
+log = get_logger(__name__)
 
 
 class Database:
@@ -66,13 +70,13 @@ class Database:
                     "INSERT INTO connections (ip_address, device_name, username, password) VALUES (?, ?, ?, ?)",
                     (ip_address, device_name, username, password),
                 )
-            print(f"[DB] Saved connection: '{device_name}'@'{ip_address}'")
+            log.info(f"Saved connection: '{device_name}'@'{ip_address}'")
             return True
         except sqlite3.IntegrityError:
-            print(f"[DB ERROR] Connection '{ip_address}' already exists — not saved")
+            log.warning(f"Connection '{ip_address}' already exists — not saved")
             return False
         except sqlite3.Error as e:
-            print(f"[DB ERROR] Failed to save connection '{ip_address}': {e}")
+            log.error(f"Failed to save connection '{ip_address}': {e}")
             return False
 
     def ip_exists(self, ip_address: str) -> bool:
@@ -124,14 +128,14 @@ class Database:
                 )
 
                 if cursor.rowcount == 0:
-                    print(f"[DB WARNING] No connection found for '{old_ip}' — nothing updated")
+                    log.warning(f"No connection found for '{old_ip}' — nothing updated")
                     return False
 
-            print(f"[DB] Updated connection '{old_ip}'" + (f" -> '{new_ip}'" if new_ip else ""))
+            log.info(f"Updated connection '{old_ip}'" + (f" -> '{new_ip}'" if new_ip else ""))
             return True
 
         except sqlite3.Error as e:
-            print(f"[DB ERROR] Failed to update connection '{old_ip}': {e}")
+            log.error(f"Failed to update connection '{old_ip}': {e}")
             return False
 
     def recreate_database_file(self) -> None:
@@ -139,7 +143,7 @@ class Database:
         if self._db_path.exists():
             self._db_path.unlink()
         self._init_database()
-        print("[DB] Database file recreated")
+        log.info("Database file recreated")
 
     def delete_connection_by_ip(self, ip_address: str) -> bool:
         """Delete a connection record by IP address. Returns True if successful."""
@@ -151,12 +155,12 @@ class Database:
                 )
 
                 if cursor.rowcount == 0:
-                    print(f"[DB WARNING] No connection found for '{ip_address}' — nothing deleted")
+                    log.warning(f"No connection found for '{ip_address}' — nothing deleted")
                     return False
 
-            print(f"[DB] Deleted connection '{ip_address}'")
+            log.info(f"Deleted connection '{ip_address}'")
             return True
 
         except sqlite3.Error as e:
-            print(f"[DB ERROR] Failed to delete connection '{ip_address}': {e}")
+            log.error(f"Failed to delete connection '{ip_address}': {e}")
             return False

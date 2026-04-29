@@ -1,8 +1,9 @@
 # Fragile API globals
 APP_NAME = "PySSH"
 
-# Logging toggles
-PING_LOG = False
+# Logging toggle
+# Options: "OFF", "ON", "DEBUG"
+LOG_MODE = "ON"
 
 # Ping timings
 MIN_PING_INTERVAL = 50

@@ -4,7 +4,6 @@ import customtkinter as ctk
 # Local application imports
 from app.dialogs.add_device import AddDeviceDialog
 from app.ui.buttons.connection_button import ConnectionButton
-from app.config import PING_LOG
 from app.ui.tooltips import CTkToolTip
 from app.ui.ux_controllers.connection_list_controller import ConnectionListController
 from app.ui.frames.scrollable_frame import ScrollableFrame
@@ -122,16 +121,15 @@ class HomePage(ctk.CTkFrame):
 
     def _init_buttons(self):
         for ip_address in self._app.database.get_all_ip_addresses():
-            self.create_connection_button(ip_address, ping_log=PING_LOG)
+            self.create_connection_button(ip_address)
         self.update_no_device_label()
 
-    def create_connection_button(self, ip_address: str, ping_log=False):
+    def create_connection_button(self, ip_address: str):
         btn = ConnectionButton(
             self.devices_scroll_frame,
             self._app,
             ip_address,
             self._on_remove_connection_button,
-            ping_log=ping_log
         )
         btn.pack(pady=5, fill="x", expand=True)
         btn.pack_propagate(False)

@@ -3,6 +3,10 @@ from pathlib import Path
 
 # Local application imports
 from app.config import APP_NAME
+from app.infra.logging import get_logger
+
+
+log = get_logger(__name__)
 
 
 class UserDataDir:
@@ -21,7 +25,7 @@ class UserDataDir:
         """
         path = Path.home() / "AppData" / "Local" / APP_NAME
         path.mkdir(parents=True, exist_ok=True)
-        print(f"Initialized app data directory @ {path}")
+        log.info(f"Initialized app data directory @ {path}")
         return path
 
     def path(self, *parts) -> Path:

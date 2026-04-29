@@ -6,6 +6,11 @@ from app.pages.home import HomePage
 from app.storage.user_data import UserDataDir
 from app.storage.database import Database
 from app.storage.icons import Icons
+from app.infra.logging import get_logger
+
+
+log = get_logger(__name__)
+
 
 class App(tk.CTk):
     """Application root, responsible for root level actions."""
@@ -38,7 +43,7 @@ class App(tk.CTk):
         # Display the page.
         self.pages[page_class].tkraise()
 
-        print(f"Switched page to {page_class.__name__}")
+        log.info(f"Switched page to {page_class.__name__}")
 
 
     def run(self):
