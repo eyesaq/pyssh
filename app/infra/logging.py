@@ -33,13 +33,13 @@ def _resolve_log_level():
 
     if mode == "off":
         return None  # special case
-    if mode == "on":
+    elif mode == "on":
         return logging.INFO
-    if mode == "debug":
+    elif mode == "debug":
         return logging.DEBUG
+    else:
+        raise TypeError(f"LOG_MODE in config.py can only be 'off', 'on' or 'debug'. Received: '{mode}'")
 
-    # fallback
-    return logging.INFO
 
 
 def get_logger(name: str) -> logging.Logger:
