@@ -1,6 +1,6 @@
 import logging
 import logging.handlers
-import os
+from config import LOG_LEVEL
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -47,14 +47,17 @@ def get_logger(name: str) -> logging.Logger:
         return _loggers[name]
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False  # avoid double logging
+
+    # Apply global log level from config.py
+    logger.setLevel(getattr(logging, LOG_LEVEL.upper(), logging.INFO))
+
+    logger.propagate = False
 
     # -----------------------------
-    # Console handler (colourised)
+    # Console handler
     # -----------------------------
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(getattr(logging, LOG_LEVEL.upper(), logging.INFO))
 
     console_format = ColourFormatter(
         "[%(levelname)s] %(name)s: %(message)s"
@@ -66,11 +69,11 @@ def get_logger(name: str) -> logging.Logger:
     # -----------------------------
     file_handler = logging.handlers.RotatingFileHandler(
         LOG_FILE,
-        maxBytes=2_000_000,   # 2 MB
+        maxBytes=2_000_000,
         backupCount=5,
         encoding="utf-8"
     )
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(logging.DEBUG)  # always capture everything to file
 
     file_format = logging.Formatter(
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -78,7 +81,6 @@ def get_logger(name: str) -> logging.Logger:
     )
     file_handler.setFormatter(file_format)
 
-    # Attach handlers
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
 
