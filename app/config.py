@@ -1,8 +1,7 @@
 # Fragile API globals
 APP_NAME = "PySSH"
 
-# Logging toggles
-PING_LOG = False
+# Logging toggle
 # Options: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 LOG_LEVEL = "DEBUG"
 
