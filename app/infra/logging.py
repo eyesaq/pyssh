@@ -55,7 +55,7 @@ def get_logger(name: str) -> logging.Logger:
     # Mode: OFF → disable logger entirely
     # -----------------------------------
     if level is None:
-        logger.disabled = True
+        logger.addHandler(logging.NullHandler())
         _loggers[name] = logger
         return logger
 
