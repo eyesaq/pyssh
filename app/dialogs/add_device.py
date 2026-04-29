@@ -3,6 +3,11 @@ from typing import Callable
 
 # Local application imports
 from app.dialogs.base_device_input import BaseDeviceInput
+from app.infra.logging import get_logger
+
+
+log = get_logger(__name__)
+
 
 class AddDeviceDialog(BaseDeviceInput):
     def __init__(self, parent, app, on_connection_creation: Callable):
@@ -13,7 +18,7 @@ class AddDeviceDialog(BaseDeviceInput):
 
     def save_device(self, ip_address, device_name, username, password):
         if self._app.database.ip_exists(ip_address):
-            print(f"IP address '{ip_address}' is already assigned to another device")
+            log.warning(f"IP address '{ip_address}' is already assigned to another device")
             self.raise_validation_error(self.ip_address_entry,"IP already exists in database")
         else:
             self._app.database.add_connection(ip_address, device_name, username, password)

@@ -10,6 +10,10 @@ from app.ui.menus.SSH_action_menu import SSHActionMenu
 from app.dialogs.edit_device import EditDeviceDialog
 from app.config import MEAN_PING_INTERVAL, PING_JITTER, MIN_PING_INTERVAL
 from app.ui.tooltips import CTkToolTip
+from app.infra.logging import get_logger
+
+
+log = get_logger(__name__)
 
 
 class ConnectionButton(ctk.CTkFrame):
@@ -130,7 +134,7 @@ class ConnectionButton(ctk.CTkFrame):
     def _update_status(self, reschedule: bool = False):
         response = os.system(f"ping -n 1 {self._ip_address} >nul")
         reachable = response == 0
-        print(f'Pinged {self._ip_address}: response \'{response}\'')
+        log.debug(f'Pinged {self._ip_address}: response \'{response}\'')
         self.after_idle(lambda: self._apply_ping_result(reachable, reschedule))
         self._pinging = False
 
