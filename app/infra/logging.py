@@ -1,6 +1,6 @@
 import logging
 import logging.handlers
-from config import LOG_LEVEL
+from app.config import LOG_LEVEL
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
