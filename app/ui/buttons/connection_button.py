@@ -29,7 +29,7 @@ class ConnectionButton(ctk.CTkFrame):
         # Toolbox buttons container
         toolbox_frame = ctk.CTkFrame(self)
         toolbox_frame.place(
-            relx=0.0, rely=1.0, anchor="sw", relwidth=0.15,
+            relx=0.0, rely=1.0, anchor="sw", relwidth=0.2,
             relheight=0.4, x=5, y=-5
         )
 
