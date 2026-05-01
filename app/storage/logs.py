@@ -12,6 +12,8 @@ class Logs:
         if not KEEP_OLD_LOGS:
             self.delete_logs()
 
+        print(f"Initialized logs directory @ {self._logs_path}")
+
     def _generate_log_filename(self) -> Path:
         """
         Creates a timestamped log filename and increments a counter
