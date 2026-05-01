@@ -4,6 +4,7 @@ APP_NAME = "PySSH"
 # Logging toggle
 # Options: "OFF", "ON", "DEBUG"
 LOG_MODE = "ON"
+KEEP_OLD_LOGS = False
 
 # Ping timings
 MIN_PING_INTERVAL = 50

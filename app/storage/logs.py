@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+from app.config import KEEP_OLD_LOGS
 
 
 class Logs:
@@ -7,6 +8,9 @@ class Logs:
         self._logs_path = Path("data/logs")
         self._logs_path.mkdir(parents=True, exist_ok=True)
         self._log_file = None
+
+        if not KEEP_OLD_LOGS:
+            self.delete_logs()
 
     def _generate_log_filename(self) -> Path:
         """
@@ -29,6 +33,26 @@ class Logs:
                 return file_path
 
             counter += 1
+
+    def delete_logs(self) -> int:
+        """
+        Deletes all .log files in the logs directory.
+        Returns the number of deleted files.
+        """
+        deleted = 0
+
+        for file in self._logs_path.glob("*.log"):
+            try:
+                file.unlink()
+                deleted += 1
+            except OSError:
+                # If a file is locked or cannot be deleted, skip it
+                pass
+
+        # Reset current log file so a new one is generated next time
+        self._log_file = None
+
+        return deleted
 
     @property
     def log_file(self) -> Path:
