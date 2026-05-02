@@ -13,3 +13,6 @@ PING_JITTER = 0.1
 
 # Validation
 MAX_DEVICE_NAME_LENGTH = 25
+
+# Database
+RESET_DB = False

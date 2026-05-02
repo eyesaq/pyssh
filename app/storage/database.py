@@ -1,6 +1,7 @@
 import sqlite3
 from pathlib import Path
 from app.infra.logging import get_logger
+from app.config import RESET_DB
 
 
 log = get_logger(__name__)
@@ -16,24 +17,27 @@ class Database:
 
     def __init__(self, user_data_dir):
         self._db_path: Path = user_data_dir.path("connections.db")
-        self._init_database()
+        self._init_database(reset_db=RESET_DB)
 
     def _connect(self) -> sqlite3.Connection:
         return sqlite3.connect(self._db_path)
 
-    def _init_database(self) -> None:
+    def _init_database(self, reset_db: bool = False) -> None:
         """Create the database table if it doesn't exist"""
-        with self._connect() as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS connections (
-                    ip_address TEXT PRIMARY KEY,
-                    device_name TEXT NOT NULL,
-                    username TEXT NOT NULL,
-                    password TEXT NOT NULL
+        if reset_db:
+            self.recreate_database_file()
+        else:
+            with self._connect() as conn:
+                conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS connections (
+                        ip_address TEXT PRIMARY KEY,
+                        device_name TEXT NOT NULL,
+                        username TEXT NOT NULL,
+                        password TEXT NOT NULL
+                    )
+                    """
                 )
-                """
-            )
 
     def get_connection_info_by_ip(self, ip_address: str) -> tuple[str, str, str, str] | None:
         """Return the full row for a given IP address as a tuple."""
