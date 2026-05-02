@@ -6,6 +6,8 @@ class Icons:
     def __init__(self):
         self._icons_path = Path('data/icons')
 
+        self.place_holder = self._load('placeholder.png')
+
         self.delete_button = self._load('delete_button.png')
         self.edit_button = self._load('edit_button.png')
         self.menu_button = self._load('menu_button.png')
